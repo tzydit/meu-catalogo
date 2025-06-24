@@ -5,6 +5,8 @@ import MovieDetailView from '../views/MovieDetailView.vue';
 import FavoritesView from '../views/FavoritesView.vue';
 import LoginView from '../views/LoginView.vue';
 import RegisterView from '../views/RegisterView.vue';
+import ProfileView from '../views/ProfileView.vue';
+import CreateMovieView from '../views/CreateMovieView.vue';
 
 const routes: RouteRecordRaw[] = [
   { path: '/', component: MovieListView },
@@ -12,6 +14,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/favoritos', component: FavoritesView },
   { path: '/login', component: LoginView },
   { path: '/cadastro', component: RegisterView },
+  { path: '/perfil', component: ProfileView },
+  { path: '/criar-filme', component: CreateMovieView },
 ];
 
 const router = createRouter({

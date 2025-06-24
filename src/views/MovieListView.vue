@@ -1,5 +1,15 @@
 <template>
   <div class="main-container">
+    <section class="about-section">
+      <h2>Como funciona o Meu Catálogo de Filmes?</h2>
+      <ul>
+        <li>Pesquise filmes por título ou gênero.</li>
+        <li>Adicione filmes aos seus favoritos para acessar rapidamente depois.</li>
+        <li>Veja detalhes, avaliações e escreva suas próprias reviews.</li>
+        <li>Crie novos filmes para compartilhar com a comunidade!</li>
+      </ul>
+      <router-link to="/criar-filme" class="create-movie-link">+ Criar novo filme</router-link>
+    </section>
     <div class="top-bar">
       <input v-model="search" @input="fetchMovies" placeholder="Pesquisar por título..." class="search-input" />
       <GenreFilter :genres="genres" v-model="selectedGenres" @update:selectedGenres="fetchMovies" />
@@ -57,6 +67,46 @@ watch(selectedGenres, fetchMovies)
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
+}
+.about-section {
+  background: linear-gradient(90deg, #232526 60%, #414345 100%);
+  color: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 16px #000a;
+  padding: 2rem 2.5rem 1.5rem 2.5rem;
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+.about-section h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.about-section ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.2rem;
+}
+.about-section li {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.95;
+}
+.create-movie-link {
+  display: inline-block;
+  background: linear-gradient(90deg, #e74c3c 60%, #ff7675 100%);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1.5rem;
+  text-decoration: none;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  transition: background 0.2s, transform 0.1s;
+}
+.create-movie-link:hover {
+  background: linear-gradient(90deg, #c0392b 60%, #ff7675 100%);
+  transform: translateY(-2px) scale(1.03);
 }
 .top-bar {
   display: flex;

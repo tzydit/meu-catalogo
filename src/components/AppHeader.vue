@@ -6,20 +6,38 @@
       <button v-else class="nav-link profile-btn" @click="goToProfile">
         Perfil
       </button>
+      <button v-if="isLogged" class="nav-link" @click="logout">Sair</button>
     </nav>
   </header>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const isLogged = computed(() => !!localStorage.getItem('token'));
+const isLogged = ref(!!localStorage.getItem('token'));
+
+function updateAuth() {
+  isLogged.value = !!localStorage.getItem('token');
+}
+
+onMounted(() => {
+  window.addEventListener('auth-change', updateAuth);
+});
+onUnmounted(() => {
+  window.removeEventListener('auth-change', updateAuth);
+});
 
 function goToProfile() {
   // Redireciona para uma página de perfil (implemente a rota se desejar)
   router.push('/perfil');
+}
+
+function logout() {
+  localStorage.removeItem('token');
+  window.dispatchEvent(new Event('auth-change'));
+  router.push('/login');
 }
 </script>
 

@@ -30,6 +30,7 @@ const handleLogin = async () => {
     });
     localStorage.setItem('token', data.token);
     localStorage.setItem('username', username.value);
+    window.dispatchEvent(new Event('auth-change'));
     router.push('/');
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Usuário ou senha inválidos.';
