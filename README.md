@@ -1,5 +1,33 @@
-# Vue 3 + TypeScript + Vite
+# Meu Catálogo
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Este projeto é um app Vue 3 + Vite com vue-router e axios.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Funcionalidades
+- Tela de cadastro (/cadastro): usuário, e-mail, senha, botão, mensagem de erro.
+- Tela de login (/login): usuário, senha, botão, mensagem de erro.
+- Página inicial (/) após login: "Bem-vindo".
+- Integração com API REST usando axios (baseURL: http://localhost:8080).
+- CSS dark mode minimalista, inputs arredondados, botão preto com texto branco.
+
+## Instalação
+```sh
+npm install
+```
+
+## Executar em modo desenvolvimento
+```sh
+npm run dev
+```
+
+## Estrutura de rotas
+- `/cadastro` — Cadastro
+- `/login` — Login
+- `/` — Página inicial
+
+## Configuração do backend
+- POST `/auth/register` para cadastro
+- POST `/auth/login` para login
+
+---
+
+> Feito com Vue 3, Vite, vue-router e axios.
