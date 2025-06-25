@@ -10,7 +10,7 @@ import CreateMovieView from '../views/CreateMovieView.vue';
 
 const routes: RouteRecordRaw[] = [
   { path: '/', component: MovieListView },
-  { path: '/filme/:id', component: MovieDetailView },
+  { path: '/movies/:id', component: MovieDetailView }, // alterado para alinhar com o endpoint do back-end
   { path: '/favoritos', component: FavoritesView },
   { path: '/login', component: LoginView },
   { path: '/cadastro', component: RegisterView },

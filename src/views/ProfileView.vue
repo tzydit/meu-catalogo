@@ -1,66 +1,125 @@
 <template>
-  <div class="profile-view">
-    <h1>Perfil do Usuário</h1>
-    <p>Bem-vindo ao seu perfil!</p>
-    <button @click="logout">Sair</button>
+  <div class="profile-container">
+    <div class="profile-box">
+      <h2>Perfil do Usuário</h2>
+      <div class="user-info">
+        <p><strong>Usuário:</strong> {{ username }}</p>
+      </div>
+      <button class="logout-btn" @click="logout">Sair</button>
+    </div>
+    <div class="reviews-section">
+      <h3>Minhas Avaliações</h3>
+      <div v-if="reviews.length === 0" class="no-reviews">Nenhuma avaliação encontrada.</div>
+      <div v-else>
+        <div v-for="review in reviews" :key="review.id" class="review-card">
+          <div class="review-header">
+            <span class="movie-title">Filme: {{ review.movieTitle }}</span>
+            <span class="stars">{{ '★'.repeat(review.nota) + '☆'.repeat(5 - review.nota) }}</span>
+          </div>
+          <p class="comment">{{ review.comentario }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import api from '../services/api';
 
-const router = useRouter()
+const router = useRouter();
+const username = localStorage.getItem('username') || '';
+const reviews = ref<any[]>([]);
 
 function logout() {
-  localStorage.removeItem('token')
-  window.dispatchEvent(new Event('auth-change'))
-  router.push('/login')
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
+  router.push('/login');
 }
+
+async function fetchUserReviews() {
+  try {
+    const { data } = await api.get(`/usuarios/${username}/avaliacoes`);
+    reviews.value = data;
+  } catch (e) {
+    reviews.value = [];
+  }
+}
+
+onMounted(() => {
+  fetchUserReviews();
+});
 </script>
 
 <style scoped>
-.profile-view {
-  max-width: 500px;
-  margin: 3.5rem auto 2rem auto;
-  padding: 2.5rem 2.5rem 2rem 2.5rem;
-  background: linear-gradient(120deg, #232526 0%, #414345 100%);
-  color: #fff;
-  border-radius: 1.5rem;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  text-align: center;
-  animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+.profile-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-h1 {
-  font-size: 2.1rem;
-  font-weight: 700;
-  margin-bottom: 0.7rem;
-  letter-spacing: 1px;
-}
-p {
-  font-size: 1.15rem;
+.profile-box {
+  background: #232323;
+  border-radius: 1rem;
+  padding: 2rem;
   margin-bottom: 2rem;
-  opacity: 0.92;
+  box-shadow: 0 2px 12px #000a;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
 }
-button {
-  margin-top: 1.5rem;
-  padding: 0.7rem 2.2rem;
-  background: linear-gradient(90deg, #e74c3c 60%, #ff7675 100%);
+.user-info {
+  font-size: 1.1rem;
+  color: #fff;
+}
+.logout-btn {
+  background: linear-gradient(90deg, #000 60%, #e74c3c 100%);
   color: #fff;
   border: none;
   border-radius: 0.75rem;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
   cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  box-shadow: 0 1px 4px #0002;
-  transition: background 0.2s, transform 0.1s;
+  margin-top: 1rem;
+  font-weight: 600;
 }
-button:hover {
-  background: linear-gradient(90deg, #c0392b 60%, #ff7675 100%);
-  transform: translateY(-2px) scale(1.03);
+.logout-btn:hover {
+  background: linear-gradient(90deg, #222 60%, #c0392b 100%);
+}
+.reviews-section {
+  background: #232323;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px #000a;
+}
+.review-card {
+  background: #292929;
+  border-radius: 0.7rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.movie-title {
+  color: #ffd700;
+  font-weight: 600;
+}
+.stars {
+  color: #ffd700;
+  font-size: 1.1rem;
+}
+.comment {
+  color: #fff;
+  margin: 0;
+}
+.no-reviews {
+  color: #aaa;
+  text-align: center;
+  margin-top: 1rem;
 }
 </style>

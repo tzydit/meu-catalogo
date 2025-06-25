@@ -1,10 +1,10 @@
 <template>
   <div class="movie-card" :class="{ favorite }">
-    <img :src="movie.imagemUrl" :alt="movie.titulo" class="movie-img" />
+    <img :src="movie.imageUrl" :alt="movie.title" class="movie-img" />
     <div class="movie-info">
-      <h3>{{ movie.titulo }}</h3>
+      <h3>{{ movie.title }}</h3>
       <div class="movie-meta">
-        <span class="rating">⭐ {{ movie.notaMedia.toFixed(1) }}</span>
+        <span class="rating">⭐ {{ movie.averageRating?.toFixed(1) ?? '0.0' }}</span>
         <button class="fav-btn" @click.stop="$emit('toggle-favorite', movie)">
           <span :class="favorite ? 'heart filled' : 'heart'">♥</span>
         </button>

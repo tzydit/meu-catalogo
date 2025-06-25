@@ -20,7 +20,7 @@ async function fetchFavorites() {
     favoriteMovies.value = []
     return
   }
-  const { data } = await api.get('/filmes')
+  const { data } = await api.get('/movies')
   favoriteMovies.value = data.filter((m: any) => favoriteIds.value.includes(m.id))
 }
 function toggleFavorite(movie: any) {

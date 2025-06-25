@@ -45,14 +45,14 @@ function toggleFavorite(movie: any) {
   localStorage.setItem('favorites', JSON.stringify(favorites.value))
 }
 async function fetchMovies() {
-  let url = '/filmes?'
-  if (search.value) url += `titulo=${encodeURIComponent(search.value)}&`
-  if (selectedGenres.value.length) url += `genero=${selectedGenres.value.join(',')}`
+  let url = '/movies?'
+  if (search.value) url += `title=${encodeURIComponent(search.value)}&`
+  if (selectedGenres.value.length) url += `gender=${selectedGenres.value.join(',')}`
   const { data } = await api.get(url)
   movies.value = data
 }
 async function fetchGenres() {
-  const { data } = await api.get('/generos')
+  const { data } = await api.get('/genres')
   genres.value = data
 }
 onMounted(() => {
@@ -69,18 +69,20 @@ watch(selectedGenres, fetchMovies)
   padding: 2rem 1rem;
 }
 .about-section {
-  background: linear-gradient(90deg, #232526 60%, #414345 100%);
-  color: #fff;
+  background: var(--color-card);
+  color: var(--color-text);
   border-radius: 1.2rem;
-  box-shadow: 0 2px 16px #000a;
+  box-shadow: var(--color-shadow);
   padding: 2rem 2.5rem 1.5rem 2.5rem;
   margin-bottom: 2.5rem;
   text-align: center;
+  border: 1.5px solid var(--color-border);
 }
 .about-section h2 {
-  font-size: 2rem;
+  font-size: 1.7rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  letter-spacing: 0.5px;
 }
 .about-section ul {
   list-style: none;
@@ -88,24 +90,27 @@ watch(selectedGenres, fetchMovies)
   margin-bottom: 1.2rem;
 }
 .about-section li {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   margin-bottom: 0.5rem;
-  opacity: 0.95;
+  opacity: 0.92;
 }
 .create-movie-link {
   display: inline-block;
-  background: linear-gradient(90deg, #e74c3c 60%, #ff7675 100%);
+  background: var(--color-primary);
   color: #fff;
-  font-weight: 700;
-  border-radius: 0.75rem;
-  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  border-radius: 0.7rem;
+  padding: 0.6rem 1.3rem;
   text-decoration: none;
-  font-size: 1.1rem;
+  font-size: 1rem;
   margin-top: 1rem;
   transition: background 0.2s, transform 0.1s;
+  border: none;
+  box-shadow: 0 1.5px 6px #0001;
 }
 .create-movie-link:hover {
-  background: linear-gradient(90deg, #c0392b 60%, #ff7675 100%);
+  background: var(--color-primary);
+  color: #fff;
   transform: translateY(-2px) scale(1.03);
 }
 .top-bar {
@@ -114,32 +119,58 @@ watch(selectedGenres, fetchMovies)
   gap: 1rem;
   align-items: center;
   margin-bottom: 2rem;
+  background: rgba(30, 32, 36, 0.92); /* container mais escuro e suave */
+  border-radius: 0.9rem;
+  padding: 1.1rem 1.5rem;
+  box-shadow: 0 2px 12px #0002;
+  transition: background 0.25s;
+  backdrop-filter: blur(2px);
 }
 .search-input {
   flex: 1;
   min-width: 220px;
   padding: 0.7rem 1rem;
-  border-radius: 0.75rem;
-  border: none;
-  background: #292929;
-  color: #fff;
+  border-radius: 0.7rem;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg-alt);
+  color: var(--color-text);
   font-size: 1rem;
+  transition: border 0.2s;
+}
+.search-input:focus {
+  border: 1.5px solid var(--color-primary);
 }
 .fav-link {
-  color: #e74c3c;
-  background: #232323;
-  border-radius: 0.75rem;
+  color: var(--color-primary);
+  background: var(--color-bg-alt);
+  border-radius: 0.7rem;
   padding: 0.6rem 1.2rem;
   text-decoration: none;
   font-weight: 600;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
+  border: 1.5px solid var(--color-border);
 }
 .fav-link:hover {
-  background: #333;
+  background: var(--color-card);
+  color: var(--color-primary);
 }
 .movies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+@media (max-width: 700px) {
+  .about-section {
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+    border-radius: 1rem;
+  }
+  .main-container {
+    padding: 1rem 0.2rem;
+  }
+  .top-bar {
+    padding: 0.7rem 0.5rem;
+    border-radius: 0.5rem;
+  }
 }
 </style>

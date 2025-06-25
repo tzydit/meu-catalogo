@@ -24,7 +24,7 @@ async function handleSubmit() {
   error.value = ''
   success.value = false
   try {
-    await api.post('/filmes', {
+    await api.post('/movies', {
       titulo: title.value,
       genero: genre.value,
       descricao: description.value

@@ -49,7 +49,7 @@ async function handleSubmit() {
   error.value = ''
   success.value = false
   try {
-    await api.post('/filmes', {
+    await api.post('/movies', {
       titulo: title.value,
       descricao: description.value,
       imagem: imageUrl.value,
@@ -68,83 +68,107 @@ async function handleSubmit() {
 .create-movie-page {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  background: linear-gradient(120deg, #232526 0%, #414345 100%);
+  background: linear-gradient(120deg, #181818 0%, #232526 100%);
+  padding-top: 80px;
 }
 .form-container {
-  background: rgba(34, 34, 34, 0.98);
-  padding: 2.5rem 2.5rem 2rem 2.5rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  background: #181818;
+  padding: 2.2rem 2rem 2rem 2rem;
+  border-radius: 1.3rem;
+  box-shadow: 0 2px 12px #000a;
   width: 100%;
-  max-width: 420px;
+  max-width: 430px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  border: 1.5px solid #232323;
 }
 h1 {
   color: #fff;
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: 2.1rem;
+  margin-bottom: 1.2rem;
   text-align: center;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-shadow: none;
 }
 form {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.3rem;
 }
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 label {
-  color: #e74c3c;
-  font-weight: 600;
-  font-size: 1rem;
+  color: #e53935;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
 }
 input, textarea {
-  padding: 0.8rem 1rem;
-  border-radius: 0.75rem;
+  padding: 1rem 1.1rem;
+  border-radius: 0.9rem;
   border: none;
-  background: #292929;
+  background: #232323;
   color: #fff;
-  font-size: 1rem;
-  transition: box-shadow 0.2s;
-  box-shadow: 0 1px 4px #0002;
+  font-size: 1.08rem;
+  transition: box-shadow 0.2s, border 0.2s;
+  box-shadow: 0 1.5px 6px #0003;
+  border: 1.5px solid #232323;
 }
 input:focus, textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #e74c3c55;
+  box-shadow: 0 0 0 2px #e5393555;
+  border: 1.5px solid #e53935;
 }
 button {
-  background: linear-gradient(90deg, #e74c3c 60%, #ff7675 100%);
+  background: linear-gradient(90deg, #e53935 60%, #ff7675 100%);
   color: #fff;
   border: none;
-  border-radius: 0.75rem;
-  padding: 0.9rem 1.2rem;
-  font-size: 1.1rem;
+  border-radius: 0.9rem;
+  padding: 1rem 1.2rem;
+  font-size: 1.13rem;
   cursor: pointer;
-  font-weight: 700;
-  letter-spacing: 1px;
-  transition: background 0.2s, transform 0.1s;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
   margin-top: 0.5rem;
+  box-shadow: 0 2px 12px #0006;
 }
 button:hover {
-  background: linear-gradient(90deg, #c0392b 60%, #ff7675 100%);
-  transform: translateY(-2px) scale(1.03);
+  background: linear-gradient(90deg, #c62828 60%, #ff7675 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 18px #000a;
 }
 .success {
-  color: #2ecc40;
-  font-weight: 600;
+  color: #43ea7c;
+  font-weight: 700;
   text-align: center;
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
 }
 .error {
   color: #ff4d4f;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+}
+@media (max-width: 600px) {
+  .form-container {
+    padding: 1.2rem 0.5rem;
+    border-radius: 1rem;
+  }
+  h1 {
+    font-size: 1.3rem;
+  }
+  .create-movie-page {
+    padding-top: 70px;
+  }
 }
 </style>

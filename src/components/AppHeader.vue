@@ -6,82 +6,105 @@
       <button v-else class="nav-link profile-btn" @click="goToProfile">
         Perfil
       </button>
-      <button v-if="isLogged" class="nav-link" @click="logout">Sair</button>
     </nav>
   </header>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
 const isLogged = ref(!!localStorage.getItem('token'));
 
-function updateAuth() {
-  isLogged.value = !!localStorage.getItem('token');
-}
-
-onMounted(() => {
-  window.addEventListener('auth-change', updateAuth);
-});
-onUnmounted(() => {
-  window.removeEventListener('auth-change', updateAuth);
-});
-
 function goToProfile() {
-  // Redireciona para uma página de perfil (implemente a rota se desejar)
   router.push('/perfil');
 }
 
-function logout() {
-  localStorage.removeItem('token');
-  window.dispatchEvent(new Event('auth-change'));
-  router.push('/login');
+function syncAuth() {
+  isLogged.value = !!localStorage.getItem('token');
 }
+
+window.addEventListener('storage', syncAuth);
+
+// Atualiza ao navegar entre rotas
+onMounted(() => {
+  syncAuth();
+});
+
+// Atualiza ao voltar para a rota
+router.afterEach(() => {
+  syncAuth();
+});
 </script>
 
 <style scoped>
 .main-header {
-  width: 100%;
-  background: #232323;
+  width: 100vw;
+  background: #181818;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 8px #000a;
-  position: sticky;
+  padding: 0.7rem 2.2rem 0.7rem 1.2rem;
+  box-shadow: 0 2px 12px #000a;
+  position: fixed;
   top: 0;
-  z-index: 10;
+  left: 0;
+  z-index: 100;
+  border-bottom: 1px solid #232323;
+  margin: 0;
 }
 .site-title {
   color: #fff;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   font-weight: 700;
   text-decoration: none;
   letter-spacing: 1px;
+  transition: color 0.2s;
+}
+.site-title:hover {
+  color: var(--color-primary);
 }
 .header-nav {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1.3rem;
 }
 .nav-link {
   color: #fff;
   text-decoration: none;
-  font-size: 1rem;
-  padding: 0.4rem 1.2rem;
-  border-radius: 0.5rem;
-  background: #181818;
-  transition: background 0.2s;
+  font-size: 1.08rem;
+  padding: 0.5rem 1.3rem;
+  border-radius: 8px;
+  background: #232323;
+  transition: background 0.2s, color 0.2s;
   border: none;
   cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 1px 6px #0007;
 }
-.nav-link:hover {
-  background: #333;
+.nav-link:hover, .profile-btn:hover {
+  background: var(--color-bg-alt);
+  color: var(--color-primary);
 }
 .profile-btn {
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+@media (max-width: 700px) {
+  .main-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.7rem 1rem;
+    gap: 0.7rem;
+  }
+  .header-nav {
+    gap: 0.7rem;
+  }
+  .site-title {
+    font-size: 1.2rem;
+  }
 }
 </style>

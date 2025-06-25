@@ -44,11 +44,11 @@ function toggleFavorite(movie: any) {
   localStorage.setItem('favorites', JSON.stringify(favorites.value))
 }
 async function fetchMovie() {
-  const { data } = await api.get(`/filmes/${route.params.id}`)
+  const { data } = await api.get(`/movies/${route.params.id}`)
   movie.value = data
 }
 async function submitReview(review: any) {
-  await api.post(`/filmes/${route.params.id}/avaliacoes`, review)
+  await api.post(`/movies/${route.params.id}/reviews`, review)
   fetchMovie()
 }
 onMounted(fetchMovie)
