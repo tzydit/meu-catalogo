@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import api from '../services/api';
+import api from '../api/axios';
 
 const router = useRouter();
 const username = localStorage.getItem('username') || '';
@@ -55,26 +55,31 @@ onMounted(() => {
 <style scoped>
 .profile-container {
   max-width: 600px;
-  margin: 2rem auto;
-  padding: 1rem;
+  margin: 6.5rem auto 2rem auto;
+  padding: 0 1rem 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .profile-box {
-  background: #232323;
+  background: var(--color-card);
   border-radius: 1rem;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 12px #000a;
+  box-shadow: var(--color-shadow);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
+  width: 100%;
 }
 .user-info {
   font-size: 1.1rem;
-  color: #fff;
+  color: var(--color-text);
+  text-align: center;
 }
 .logout-btn {
-  background: linear-gradient(90deg, #000 60%, #e74c3c 100%);
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 0.75rem;
@@ -83,18 +88,21 @@ onMounted(() => {
   cursor: pointer;
   margin-top: 1rem;
   font-weight: 600;
+  transition: background 0.2s;
 }
 .logout-btn:hover {
-  background: linear-gradient(90deg, #222 60%, #c0392b 100%);
+  background: var(--color-primary-dark);
 }
 .reviews-section {
-  background: #232323;
+  background: var(--color-bg-alt);
   border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 2px 12px #000a;
+  box-shadow: 0 1.5px 6px #0001;
+  padding: 1.5rem 1rem;
+  border: 1.5px solid var(--color-border);
+  width: 100%;
 }
 .review-card {
-  background: #292929;
+  background: var(--color-card);
   border-radius: 0.7rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -106,7 +114,7 @@ onMounted(() => {
   margin-bottom: 0.5rem;
 }
 .movie-title {
-  color: #ffd700;
+  color: var(--color-primary);
   font-weight: 600;
 }
 .stars {
@@ -114,12 +122,22 @@ onMounted(() => {
   font-size: 1.1rem;
 }
 .comment {
-  color: #fff;
+  color: var(--color-text);
   margin: 0;
 }
 .no-reviews {
   color: #aaa;
   text-align: center;
   margin-top: 1rem;
+}
+@media (max-width: 700px) {
+  .profile-container {
+    margin: 7.5rem 0.2rem 1.5rem 0.2rem;
+    padding: 0;
+  }
+  .profile-box, .reviews-section {
+    padding: 1.2rem 0.5rem;
+    border-radius: 1rem;
+  }
 }
 </style>

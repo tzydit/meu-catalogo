@@ -20,8 +20,13 @@
           <input v-model.number="year" id="year" type="number" min="1900" max="2100" required />
         </div>
         <div class="form-group">
-          <label for="gender">Gênero</label>
-          <input v-model="gender" id="gender" type="text" required />
+          <label>Gêneros (máx. 3)</label>
+          <div class="genre-checkboxes">
+            <label v-for="genre in genres" :key="genre" class="genre-option">
+              <input type="checkbox" :value="genre" v-model="selectedGenres" :disabled="selectedGenres.length >= 3 && !selectedGenres.includes(genre)" />
+              {{ genre }}
+            </label>
+          </div>
         </div>
         <button type="submit">Criar Filme</button>
         <p v-if="success" class="success">Filme criado com sucesso!</p>
@@ -32,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import api from '../api/axios'
 import { useRouter } from 'vue-router'
 
@@ -40,21 +45,35 @@ const title = ref('')
 const description = ref('')
 const imageUrl = ref('')
 const year = ref(new Date().getFullYear())
-const gender = ref('')
+const genres = ref<string[]>([])
+const selectedGenres = ref<string[]>([])
 const success = ref(false)
 const error = ref('')
 const router = useRouter()
 
+async function fetchGenres() {
+  try {
+    const { data } = await api.get('/genres')
+    genres.value = data
+  } catch {
+    genres.value = []
+  }
+}
+
 async function handleSubmit() {
   error.value = ''
   success.value = false
+  if (selectedGenres.value.length === 0) {
+    error.value = 'Selecione pelo menos um gênero.'
+    return
+  }
   try {
     await api.post('/movies', {
-      titulo: title.value,
-      descricao: description.value,
-      imagem: imageUrl.value,
-      ano: year.value,
-      genero: gender.value
+      title: title.value,
+      description: description.value,
+      imageUrl: imageUrl.value,
+      year: year.value,
+      gender: selectedGenres.value
     })
     success.value = true
     setTimeout(() => router.push('/'), 1200)
@@ -62,6 +81,8 @@ async function handleSubmit() {
     error.value = err.response?.data?.message || 'Erro ao criar filme.'
   }
 }
+
+onMounted(fetchGenres)
 </script>
 
 <style scoped>
@@ -70,24 +91,24 @@ async function handleSubmit() {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  background: linear-gradient(120deg, #181818 0%, #232526 100%);
+  background: var(--color-bg);
   padding-top: 80px;
 }
 .form-container {
-  background: #181818;
-  padding: 2.2rem 2rem 2rem 2rem;
-  border-radius: 1.3rem;
-  box-shadow: 0 2px 12px #000a;
+  background: var(--color-card);
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 1.1rem;
+  box-shadow: var(--color-shadow);
   width: 100%;
-  max-width: 430px;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  border: 1.5px solid #232323;
+  border: 1.5px solid var(--color-border);
 }
 h1 {
-  color: #fff;
-  font-size: 2.1rem;
+  color: var(--color-primary);
+  font-size: 1.5rem;
   margin-bottom: 1.2rem;
   text-align: center;
   font-weight: 800;
@@ -97,7 +118,7 @@ h1 {
 form {
   display: flex;
   flex-direction: column;
-  gap: 1.3rem;
+  gap: 1.1rem;
 }
 .form-group {
   display: flex;
@@ -105,29 +126,30 @@ form {
   gap: 0.5rem;
 }
 label {
-  color: #e53935;
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.5px;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 1rem;
 }
 input, textarea {
-  padding: 1rem 1.1rem;
-  border-radius: 0.9rem;
-  border: none;
-  background: #232323;
-  color: #fff;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.7rem;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg-alt);
+  color: var(--color-text);
   font-size: 1.08rem;
   transition: box-shadow 0.2s, border 0.2s;
   box-shadow: 0 1.5px 6px #0003;
-  border: 1.5px solid #232323;
+  resize: none;
 }
 input:focus, textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #e5393555;
-  border: 1.5px solid #e53935;
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+  border: 1.5px solid var(--color-primary);
 }
 button {
-  background: linear-gradient(90deg, #e53935 60%, #ff7675 100%);
+  background: linear-gradient(90deg, var(--color-primary) 60%, var(--color-primary-light) 100%);
   color: #fff;
   border: none;
   border-radius: 0.9rem;
@@ -140,10 +162,24 @@ button {
   margin-top: 0.5rem;
   box-shadow: 0 2px 12px #0006;
 }
-button:hover {
-  background: linear-gradient(90deg, #c62828 60%, #ff7675 100%);
+button[type='submit'] {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 1rem 1.2rem;
+  font-size: 1.13rem;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 12px #0002;
+}
+button[type='submit']:hover {
+  background: var(--color-primary-dark);
   transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 4px 18px #000a;
+  box-shadow: 0 4px 18px #0003;
 }
 .success {
   color: #43ea7c;
@@ -159,16 +195,56 @@ button:hover {
   margin-top: 0.5rem;
   font-size: 1.08rem;
 }
+.genre-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0.2rem;
+}
+.genre-option {
+  background: var(--color-bg-alt);
+  color: var(--color-text);
+  border-radius: 0.75rem;
+  padding: 0.4rem 1.1rem 0.4rem 0.7rem;
+  font-size: 1rem;
+  cursor: pointer;
+  user-select: none;
+  border: 1.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  transition: background 0.2s, border 0.2s;
+}
+.genre-option input[type="checkbox"] {
+  accent-color: var(--color-primary);
+  margin-right: 0.5em;
+  width: 1.1em;
+  height: 1.1em;
+}
+.genre-option:has(input[type="checkbox"]:checked) {
+  background: var(--color-primary);
+  color: #fff;
+  border: 1.5px solid var(--color-primary-dark);
+}
 @media (max-width: 600px) {
   .form-container {
     padding: 1.2rem 0.5rem;
     border-radius: 1rem;
+    max-width: 98vw;
   }
   h1 {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
   }
   .create-movie-page {
     padding-top: 70px;
+  }
+  .genre-checkboxes {
+    gap: 0.3rem;
+    justify-content: flex-start;
+  }
+  .genre-option {
+    font-size: 0.95rem;
+    padding: 0.3rem 0.7rem 0.3rem 0.5rem;
   }
 }
 </style>

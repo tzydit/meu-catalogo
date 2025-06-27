@@ -1,86 +1,65 @@
+/* CSS global bonito, moderno e consistente */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-bg: #f6f7fb;
+  --color-bg-alt: #fff;
+  --color-text: #23272f;
+  --color-primary: #6366f1;
+  --color-primary-dark: #4338ca;
+  --color-danger: #e74c3c;
+  --color-card: #fff;
+  --color-border: #e5e7eb;
+  --color-shadow: 0 2px 16px #0001;
+  --radius: 1.1rem;
+  --transition: 0.18s cubic-bezier(.4,0,.2,1);
 }
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+body.theme-dark {
+  --color-bg: #181a20;
+  --color-bg-alt: #23272f;
+  --color-text: #f6f7fb;
+  --color-primary: #6366f1;
+  --color-primary-dark: #4338ca;
+  --color-danger: #e74c3c;
+  --color-card: #23272f;
+  --color-border: #232323;
+  --color-shadow: 0 2px 16px #000a;
 }
-a:hover {
-  color: #535bf2;
-}
-
-/* Dark mode global moderno e responsivo */
 body {
-  background: linear-gradient(135deg, #181818 0%, #232526 100%);
-  color: #fff;
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   margin: 0;
   min-height: 100vh;
   letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  transition: background var(--transition), color var(--transition);
 }
-
-html {
-  box-sizing: border-box;
-  width: 100vw;
-  overflow-x: hidden;
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition);
 }
-
-*, *::before, *::after {
-  box-sizing: inherit;
+a:hover {
+  color: var(--color-primary-dark);
 }
-
-::-webkit-scrollbar {
-  width: 10px;
-  background: #232323;
-}
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 8px;
-}
-
 input, button, textarea, select {
-  outline: none;
   font-family: inherit;
-  border: none;
   border-radius: 0.7rem;
-  background: #232323;
-  color: #fff;
-  font-size: 1rem;
-  transition: box-shadow 0.2s, border 0.2s;
+  border: 1.5px solid var(--color-border);
+  outline: none;
+  transition: border var(--transition), box-shadow var(--transition);
 }
 input:focus, textarea:focus, select:focus {
-  box-shadow: 0 0 0 2px #e74c3c44;
-  border: 1px solid #e74c3c;
+  border: 1.5px solid var(--color-primary);
+  box-shadow: 0 0 0 2px #6366f133;
 }
-
-button {
-  background: linear-gradient(90deg, #000 60%, #e74c3c 100%);
-  color: #fff;
-  font-weight: 600;
-  padding: 0.8rem 1.5rem;
-  border-radius: 0.7rem;
-  cursor: pointer;
-  box-shadow: 0 2px 8px #0004;
-  transition: background 0.2s, box-shadow 0.2s;
+::-webkit-scrollbar {
+  width: 10px;
+  background: var(--color-bg-alt);
 }
-button:hover {
-  background: linear-gradient(90deg, #222 60%, #c0392b 100%);
-  box-shadow: 0 4px 16px #0006;
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 8px;
 }
 
 .card {

@@ -16,6 +16,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/cadastro', component: RegisterView },
   { path: '/perfil', component: ProfileView },
   { path: '/criar-filme', component: CreateMovieView },
+  { path: '/gerenciar-filmes', component: () => import('../views/ManageMoviesView.vue') },
+  { path: '/editar-filme/:id', component: () => import('../views/EditMovieView.vue') },
 ];
 
 const router = createRouter({

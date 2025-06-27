@@ -44,51 +44,86 @@ const handleRegister = async () => {
   background: none;
 }
 .form-box {
-  background: #232323;
-  padding: 2rem 2.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 2px 16px #000a;
+  background: var(--color-card);
+  color: var(--color-text);
+  border-radius: var(--radius);
+  box-shadow: var(--color-shadow);
+  padding: 2.5rem 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  border: 1.5px solid var(--color-border);
   min-width: 320px;
 }
-input {
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  border: none;
-  background: #292929;
-  color: #fff;
-  font-size: 1rem;
-}
-button {
-  background: linear-gradient(90deg, #000 60%, #e74c3c 100%);
-  color: #fff;
-  border: none;
-  border-radius: 0.75rem;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-button:hover {
-  background: linear-gradient(90deg, #222 60%, #c0392b 100%);
-}
-.error-message {
-  color: #ff4d4f;
-  font-size: 0.95rem;
-  margin-top: -0.5rem;
+h2 {
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1.2rem;
   text-align: center;
 }
-.login-link {
+input {
+  background: var(--color-bg-alt);
+  color: var(--color-text);
+  border-radius: 0.7rem;
+  border: 1.5px solid var(--color-border);
+  font-size: 1rem;
+  transition: border 0.2s;
+  padding: 0.9rem 1.1rem;
+}
+input:focus {
+  border: 1.5px solid var(--color-primary);
+}
+button[type='submit'], button {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 1rem 1.2rem;
+  font-size: 1.13rem;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 12px #0002;
+}
+button[type='submit']:hover, button:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 18px #0003;
+}
+.error-message, .error {
   color: #e74c3c;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+}
+.success {
+  color: #43ea7c;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+}
+.login-link {
+  color: var(--color-primary);
   text-align: center;
   margin-top: 0.5rem;
   text-decoration: underline;
   font-size: 0.98rem;
   cursor: pointer;
+  transition: color 0.2s;
 }
 .login-link:hover {
-  color: #fff;
+  color: var(--color-primary-dark);
+}
+@media (max-width: 600px) {
+  .form-box {
+    padding: 1.2rem 0.5rem;
+    border-radius: 1rem;
+    min-width: 0;
+  }
 }
 </style>

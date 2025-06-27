@@ -1,16 +1,18 @@
 <template>
-  <div class="movie-card" :class="{ favorite }">
-    <img :src="movie.imageUrl" :alt="movie.title" class="movie-img" />
-    <div class="movie-info">
-      <h3>{{ movie.title }}</h3>
-      <div class="movie-meta">
-        <span class="rating">⭐ {{ movie.averageRating?.toFixed(1) ?? '0.0' }}</span>
-        <button class="fav-btn" @click.stop="$emit('toggle-favorite', movie)">
-          <span :class="favorite ? 'heart filled' : 'heart'">♥</span>
-        </button>
+  <router-link :to="`/movies/${movie.id}`" class="movie-link">
+    <div class="movie-card" :class="{ favorite }">
+      <img :src="movie.imageUrl" :alt="movie.title" class="movie-img" />
+      <div class="movie-info">
+        <h3>{{ movie.title }}</h3>
+        <div class="movie-meta">
+          <span class="rating">⭐ {{ movie.averageRating?.toFixed(1) ?? '0.0' }}</span>
+          <button class="fav-btn" @click.stop="$emit('toggle-favorite', movie)">
+            <span :class="favorite ? 'heart filled' : 'heart'">♥</span>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <script setup lang="ts">
