@@ -28,6 +28,10 @@
             </label>
           </div>
         </div>
+        <div class="form-group">
+          <label for="trailerUrl">URL do Trailer (YouTube)</label>
+          <input v-model="trailerUrl" id="trailerUrl" type="url" placeholder="https://youtube.com/watch?v=..." />
+        </div>
         <button type="submit">Criar Filme</button>
         <p v-if="success" class="success">Filme criado com sucesso!</p>
         <p v-if="error" class="error">{{ error }}</p>
@@ -47,14 +51,17 @@ const imageUrl = ref('')
 const year = ref(new Date().getFullYear())
 const genres = ref<string[]>([])
 const selectedGenres = ref<string[]>([])
+const trailerUrl = ref('')
 const success = ref(false)
 const error = ref('')
 const router = useRouter()
 
 async function fetchGenres() {
   try {
-    const { data } = await api.get('/genres')
-    genres.value = data
+    const { data } = await api.get('/generos')
+    genres.value = Array.isArray(data)
+      ? data.map(g => typeof g === 'string' ? g : g.nome || g.name || g)
+      : []
   } catch {
     genres.value = []
   }
@@ -73,7 +80,8 @@ async function handleSubmit() {
       description: description.value,
       imageUrl: imageUrl.value,
       year: year.value,
-      gender: selectedGenres.value
+      gender: selectedGenres.value,
+      trailerUrl: trailerUrl.value
     })
     success.value = true
     setTimeout(() => router.push('/'), 1200)

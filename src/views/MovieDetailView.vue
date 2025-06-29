@@ -6,13 +6,34 @@
         <h1>{{ movie.title }}</h1>
         <div class="meta">
           <span class="year">{{ movie.year }}</span>
-          <span class="genres">{{ movie.gender }}</span>
+          <span class="genres">
+            <template v-if="Array.isArray(movie.gender)">
+              <span v-for="g in movie.gender" :key="g" class="genre-chip">{{ g }}</span>
+            </template>
+            <template v-else>
+              <span class="genre-chip">{{ movie.gender }}</span>
+            </template>
+          </span>
           <span class="rating">⭐ {{ movie.averageRating?.toFixed(1) ?? '0.0' }}</span>
           <button class="fav-btn" @click="toggleFavorite(movie)">
             <span :class="isFavorite(movie.id) ? 'heart filled' : 'heart'">♥</span>
           </button>
         </div>
         <p class="synopsis">{{ movie.description }}</p>
+      </div>
+    </div>
+    <div class="trailer-section" v-if="movie.trailerUrl">
+      <h2>Trailer</h2>
+      <div class="trailer-player">
+        <iframe
+          v-if="movie.trailerUrl.includes('youtube.com') || movie.trailerUrl.includes('youtu.be')"
+          :src="getYoutubeEmbedUrl(movie.trailerUrl)"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          class="trailer-iframe"
+        ></iframe>
+        <video v-else :src="movie.trailerUrl" controls class="trailer-video"></video>
       </div>
     </div>
     <div class="reviews-section">
@@ -54,67 +75,103 @@ async function submitReview(review: any) {
   await api.post(`/movies/${route.params.id}/reviews`, review)
   fetchMovie()
 }
+function getYoutubeEmbedUrl(url: string) {
+  // Suporta links do tipo https://www.youtube.com/watch?v=ID ou https://youtu.be/ID
+  const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+  if (youtubeMatch && youtubeMatch[1]) {
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+  }
+  return url;
+}
 onMounted(fetchMovie)
 </script>
 
 <style scoped>
 .detail-container {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 2.5rem 1rem 2rem 1rem;
-  background: var(--color-card);
-  border-radius: 1.2rem;
-  box-shadow: var(--color-shadow);
+  max-width: 1100px;
+  margin: 3.5rem auto 2rem auto;
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+  animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .detail-header {
   display: flex;
-  gap: 2rem;
+  gap: 2.2rem;
   align-items: flex-start;
-  margin-bottom: 2rem;
+  margin-bottom: 2.2rem;
   flex-wrap: wrap;
 }
 .detail-img {
-  width: 200px;
-  height: 300px;
+  width: 220px;
+  height: 330px;
   object-fit: cover;
-  border-radius: 1rem;
+  border-radius: 1.2rem;
   background: #e5e7eb;
-  box-shadow: 0 2px 8px #0001;
+  box-shadow: 0 4px 18px #0002;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.detail-img:hover {
+  box-shadow: 0 8px 32px #e74c3c33;
+  transform: scale(1.03);
 }
 .detail-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.9rem;
   min-width: 180px;
 }
 .detail-info h1 {
-  color: var(--color-text);
-  font-size: 1.4rem;
-  font-weight: 700;
+  color: #232323;
+  font-size: 2.1rem;
+  font-weight: 800;
   margin-bottom: 0.5rem;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px #0003;
 }
 .meta {
   display: flex;
   gap: 0.7rem;
   align-items: center;
   margin-bottom: 0.7rem;
+  flex-wrap: wrap;
 }
-.year, .genres, .rating {
-  background: var(--color-bg-alt);
-  border-radius: 0.5rem;
-  padding: 0.3rem 0.8rem;
-  color: var(--color-text);
-  font-size: 1rem;
-  font-weight: 500;
+.year, .rating {
+  background: #f0f0f0;
+  color: #232323;
+  border-radius: 1.2rem;
+  padding: 0.35rem 1.1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  box-shadow: 0 1px 4px #0002;
+  margin-right: 0.2rem;
 }
-.rating { color: var(--color-primary); }
+.genres {
+  display: flex;
+  gap: 0.4rem;
+}
+.genre-chip {
+  background: linear-gradient(90deg, #e74c3c 60%, #ff7675 100%);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 1.2rem;
+  padding: 0.35rem 1.1rem;
+  font-size: 1.05rem;
+  box-shadow: 0 1px 4px #e74c3c22;
+  margin-right: 0.1rem;
+}
 .fav-btn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   padding: 0 0.2rem;
   margin-left: 0.5rem;
   color: #bbb;
@@ -129,27 +186,80 @@ onMounted(fetchMovie)
   color: #e74c3c;
 }
 .synopsis {
-  color: #888;
-  margin-top: 1rem;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  background: var(--color-bg-alt);
-  border-radius: 0.7rem;
-  padding: 1rem 1.1rem;
+  color: #444;
+  margin-top: 1.2rem;
+  font-size: 1.13rem;
+  line-height: 1.7;
+  background: #f7f7f7;
+  border-radius: 0.9rem;
+  padding: 1.2rem 1.3rem;
+  box-shadow: 0 1.5px 6px #0002;
 }
 .reviews-section {
-  margin-top: 2.2rem;
-  background: var(--color-bg-alt);
-  border-radius: 1rem;
-  box-shadow: 0 1.5px 6px #0001;
-  padding: 1.3rem 1rem 1rem 1rem;
-  border: 1.5px solid var(--color-border);
+  margin-top: 2.5rem;
+  background: #f7f7f7;
+  border-radius: 1.2rem;
+  box-shadow: 0 1.5px 6px #0002;
+  padding: 1.5rem 1.1rem 1.1rem 1.1rem;
+  border: 1.5px solid #e0e0e0;
 }
 .reviews-section h2 {
-  color: var(--color-text);
-  font-size: 1.1rem;
-  font-weight: 600;
+  color: #232323;
+  font-size: 1.2rem;
+  font-weight: 700;
   margin-bottom: 1.1rem;
+}
+.trailer-section {
+  margin: 2.2rem 0 2.5rem 0;
+  background: #f7f7f7;
+  border-radius: 1.2rem;
+  box-shadow: 0 1.5px 6px #0002;
+  padding: 1.5rem 1.1rem 1.1rem 1.1rem;
+  border: 1.5px solid #e0e0e0;
+  text-align: center;
+}
+.trailer-section h2 {
+  color: #232323;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1.1rem;
+}
+.trailer-player {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.5rem 0 0.5rem 0;
+}
+.trailer-iframe, .trailer-video {
+  width: 100%;
+  max-width: 700px;
+  aspect-ratio: 16/9;
+  min-height: 240px;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 12px #0001;
+  background: #000;
+  border: 2px solid #e0e0e0;
+  margin: 0 auto;
+  display: block;
+}
+@media (max-width: 1100px) {
+  .detail-container {
+    padding: 1.2rem 0.5rem;
+  }
+}
+@media (max-width: 900px) {
+  .detail-container {
+    padding: 1.2rem 0.2rem;
+  }
+  .detail-header {
+    gap: 1.2rem;
+  }
+  .trailer-iframe, .trailer-video {
+    max-width: 98vw;
+    min-height: 180px;
+  }
 }
 @media (max-width: 700px) {
   .detail-header {
@@ -166,6 +276,16 @@ onMounted(fetchMovie)
   .detail-info {
     min-width: 0;
     width: 100%;
+  }
+  .detail-container {
+    margin: 2.2rem 0 1.2rem 0;
+    padding: 1.2rem 0.2rem;
+  }
+  .trailer-player iframe,
+  .trailer-player video {
+    max-width: 98vw;
+    height: 45vw;
+    min-height: 180px;
   }
 }
 </style>

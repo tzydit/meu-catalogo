@@ -27,6 +27,7 @@ import api from '../api/axios';
 import MovieCard from '../components/MovieCard.vue';
 import GenreFilter from '../components/GenreFilter.vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 function getUserRole() {
   const token = localStorage.getItem('token');
@@ -47,6 +48,7 @@ const selectedGenres = ref([])
 const search = ref('')
 const favorites = ref<number[]>(JSON.parse(localStorage.getItem('favorites') || '[]'))
 const router = useRouter()
+const generos = ref([]);
 
 function isFavorite(id: number) {
   return favorites.value.includes(id)
@@ -70,12 +72,46 @@ async function fetchMovies() {
 }
 
 async function fetchGenres() {
-  const { data } = await api.get('/genres');
-  genres.value = data
+  const { data } = await api.get('/generos');
+  genres.value = data;
 }
+
+async function fetchGeneros() {
+  try {
+    const response = await axios.get('http://localhost:8080/generos');
+    generos.value = response.data;
+    console.log('Gêneros recebidos:', generos.value);
+    return generos.value;
+  } catch (error) {
+    console.error('Erro ao buscar gêneros:', error);
+    return [];
+  }
+}
+
+async function criarFilme(filme) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.post('http://localhost:8080/movies', filme, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log('Filme criado:', response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error('Erro ao criar filme:', error.response.data);
+    } else {
+      console.error('Erro ao criar filme:', error.message);
+    }
+    throw error;
+  }
+}
+
 onMounted(() => {
   fetchGenres()
   fetchMovies()
+  fetchGeneros()
 })
 watch(selectedGenres, fetchMovies)
 </script>
