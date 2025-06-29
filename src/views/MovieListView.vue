@@ -88,26 +88,6 @@ async function fetchGeneros() {
   }
 }
 
-async function criarFilme(filme) {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.post('http://localhost:8080/movies', filme, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    console.log('Filme criado:', response.data);
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      console.error('Erro ao criar filme:', error.response.data);
-    } else {
-      console.error('Erro ao criar filme:', error.message);
-    }
-    throw error;
-  }
-}
-
 onMounted(() => {
   fetchGenres()
   fetchMovies()

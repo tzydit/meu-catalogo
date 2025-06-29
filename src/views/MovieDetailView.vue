@@ -38,6 +38,7 @@
     </div>
     <div class="reviews-section">
       <h2>Avaliações</h2>
+      <div v-if="errorMsg" class="review-error">{{ errorMsg }}</div>
       <ReviewForm @submit="submitReview" />
       <MovieReview v-for="review in movie.reviews" :key="review.id || review._id" :review="review" />
     </div>
@@ -50,10 +51,12 @@ import { useRoute } from 'vue-router';
 import api from '../api/axios';
 import MovieReview from '../components/MovieReview.vue';
 import ReviewForm from '../components/ReviewForm.vue';
+import axios from 'axios';
 
 const route = useRoute()
 const movie = ref<any>(null)
 const favorites = ref<number[]>(JSON.parse(localStorage.getItem('favorites') || '[]'))
+const errorMsg = ref('')
 
 function isFavorite(id: number) {
   return favorites.value.includes(id)
@@ -72,8 +75,23 @@ async function fetchMovie() {
   }
 }
 async function submitReview(review: any) {
-  await api.post(`/movies/${route.params.id}/reviews`, review)
-  fetchMovie()
+  errorMsg.value = ''
+  try {
+    await api.post(`/movies/${route.params.id}/reviews`, review)
+    fetchMovie()
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      if (error.response.status === 404) {
+        errorMsg.value = 'Não foi possível encontrar o filme para avaliar. Tente recarregar a página ou verifique se o filme ainda existe.'
+      } else if (error.response.status === 403) {
+        errorMsg.value = 'Você precisa estar autenticado para avaliar.'
+      } else {
+        errorMsg.value = error.response.data?.message || 'Erro ao criar a avaliação.'
+      }
+    } else {
+      errorMsg.value = 'Erro ao criar a avaliação.'
+    }
+  }
 }
 function getYoutubeEmbedUrl(url: string) {
   // Suporta links do tipo https://www.youtube.com/watch?v=ID ou https://youtu.be/ID
@@ -243,6 +261,17 @@ onMounted(fetchMovie)
   border: 2px solid #e0e0e0;
   margin: 0 auto;
   display: block;
+}
+.review-error {
+  color: #e74c3c;
+  background: #ffeaea;
+  border: 1.5px solid #e74c3c;
+  border-radius: 0.7rem;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  text-align: center;
+  font-size: 1.05rem;
 }
 @media (max-width: 1100px) {
   .detail-container {
