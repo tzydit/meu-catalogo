@@ -2,7 +2,19 @@
   <header class="main-header">
     <router-link to="/" class="site-title">Meu Catálogo de Filmes</router-link>
     <nav class="header-nav">
-      <router-link v-if="isAdmin" to="/gerenciar-filmes" class="nav-link">Gerenciar</router-link>
+      <div v-if="isAdmin" class="admin-menu">
+        <button class="nav-link admin-btn" @click="toggleAdminMenu">
+          Administração <span class="dropdown-arrow">▾</span>
+        </button>
+        <div v-show="showAdminMenu" class="admin-dropdown">
+          <router-link to="/gerenciar-filmes" class="dropdown-item">
+            <span class="item-icon">📋</span> Gerenciar Filmes
+          </router-link>
+          <router-link to="/criar-filme" class="dropdown-item">
+            <span class="item-icon">➕</span> Adicionar Filme
+          </router-link>
+        </div>
+      </div>
       <router-link v-if="!isLogged" to="/login" class="nav-link">Login</router-link>
       <button v-else class="nav-link profile-btn" @click="goToProfile">
         Perfil
@@ -12,22 +24,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const isLogged = ref(!!localStorage.getItem('token'));
 const isAdmin = ref(false);
+const showAdminMenu = ref(false);
 
-function getUserRole() {
+function isUserAdmin() {
   const token = localStorage.getItem('token');
-  if (!token) return null;
+  if (!token) return false;
+  
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    if (payload.role) return payload.role === 'ADMIN';
-    if (payload.roles && Array.isArray(payload.roles)) return payload.roles.includes('ADMIN');
+    console.log('Debug - JWT payload:', payload);
+    
+    // Verifica diferentes formatos de roles no JWT
+    if (payload.authorities && Array.isArray(payload.authorities)) {
+      return payload.authorities.includes('ADMIN') || payload.authorities.includes('ROLE_ADMIN');
+    }
+    if (payload.roles && Array.isArray(payload.roles)) {
+      return payload.roles.includes('ADMIN') || payload.roles.includes('ROLE_ADMIN');
+    }
+    if (payload.role) {
+      return payload.role === 'ADMIN' || payload.role === 'ROLE_ADMIN';
+    }
+    
     return false;
-  } catch {
+  } catch (e) {
+    console.error('Erro ao verificar permissões:', e);
     return false;
   }
 }
@@ -36,17 +62,37 @@ function goToProfile() {
   router.push('/perfil');
 }
 
+function toggleAdminMenu() {
+  showAdminMenu.value = !showAdminMenu.value;
+}
+
+// Fecha o menu ao clicar fora
+function handleClickOutside(event: MouseEvent) {
+  const adminMenu = document.querySelector('.admin-menu');
+  if (adminMenu && !adminMenu.contains(event.target as Node)) {
+    showAdminMenu.value = false;
+  }
+}
+
 function syncAuth() {
   isLogged.value = !!localStorage.getItem('token');
-  isAdmin.value = getUserRole();
+  isAdmin.value = isUserAdmin();
 }
 
 onMounted(() => {
   syncAuth();
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 
 window.addEventListener('storage', syncAuth);
-router.afterEach(() => { syncAuth(); });
+router.afterEach(() => { 
+  syncAuth();
+  showAdminMenu.value = false;
+});
 </script>
 
 <style scoped>
@@ -103,6 +149,66 @@ router.afterEach(() => { syncAuth(); });
 .nav-link:hover, .profile-btn:hover {
   background: var(--color-primary);
   color: #fff;
+}
+.admin-menu {
+  position: relative;
+}
+
+.admin-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-primary);
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.7rem;
+  transition: all 0.3s ease;
+}
+
+.admin-btn:hover {
+  background: var(--color-primary-dark);
+}
+
+.dropdown-arrow {
+  font-size: 0.8em;
+  transition: transform 0.3s ease;
+}
+
+.admin-menu.active .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.admin-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 200px;
+  background: var(--color-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: 0.8rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.2rem;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: var(--color-bg-alt);
+}
+
+.item-icon {
+  font-size: 1.2em;
+  opacity: 0.8;
 }
 @media (max-width: 700px) {
   .main-header {

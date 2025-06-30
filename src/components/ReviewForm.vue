@@ -35,52 +35,113 @@ function submitReview() {
 .review-form {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  background: #f7f7f7;
-  border-radius: 0.75rem;
-  padding: 1.2rem 1rem 1rem 1rem;
-  margin-bottom: 1.5rem;
-  border: 1.5px solid #e0e0e0;
+  gap: 1rem;
+  background: #ffffff;
+  border-radius: 1.2rem;
+  padding: 1.5rem;
+  margin-bottom: 1.8rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #edf2f7;
+  max-width: 100%;
 }
+
+.review-form:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
 .review-user {
-  color: #232323;
-  font-size: 1rem;
-  margin-bottom: 0.2rem;
+  color: #2d3748;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
 }
-input, textarea {
+
+.review-user b {
+  color: #2d3748;
+  font-weight: 600;
+}
+
+textarea {
+  width: calc(100% - 2rem);
+  padding: 0.8rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.8rem;
+  resize: none;
+  height: 120px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: #4a5568;
+  transition: all 0.2s ease;
   background: #fff;
-  color: #232323;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 0.5rem;
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
+  margin: 0 1rem;
 }
+
+textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
 .stars {
   display: flex;
-  gap: 0.3rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
 }
+
+.stars label {
+  cursor: pointer;
+  padding: 0.2rem;
+}
+
+.stars input[type="radio"] {
+  display: none;
+}
+
 .star {
-  color: #bbb;
-  font-size: 1.3rem;
+  color: #cbd5e0;
+  font-size: 1.8rem;
+  transition: all 0.2s ease;
   cursor: pointer;
-  transition: color 0.2s;
 }
-.star.filled {
-  color: #ffd700;
+
+.star.filled,
+.stars label:hover .star,
+.stars label:hover ~ label .star {
+  color: #eab308;
 }
+
 button {
-  background: linear-gradient(90deg, #e74c3c 60%, #ff7675 100%);
-  color: #fff;
+  align-self: flex-end;
+  background: #4299e1;
+  color: white;
   border: none;
-  border-radius: 0.5rem;
-  padding: 0.7rem 1.2rem;
+  border-radius: 0.8rem;
+  padding: 0.8rem 1.8rem;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  margin-top: 0.5rem;
-  font-weight: 700;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
 }
+
 button:hover {
-  background: linear-gradient(90deg, #c0392b 60%, #ff7675 100%);
+  background: #3182ce;
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .review-form {
+    padding: 1.2rem;
+  }
+  
+  button {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
 }
 </style>

@@ -18,6 +18,9 @@
     <div class="movies-grid">
       <MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" :favorite="isFavorite(movie.id)" @toggle-favorite="toggleFavorite" />
     </div>
+    <div class="view-all-container" v-if="movies.length >= 12">
+      <router-link to="/todos-filmes" class="view-all-btn">Ver Todos os Filmes</router-link>
+    </div>
   </div>
 </template>
 
@@ -82,10 +85,13 @@ async function fetchMovies() {
   }
   try {
     const { data } = await api.get(url);
-    movies.value = data.map((movie: any) => ({
+    const processedMovies = data.map((movie: any) => ({
       ...movie,
       id: movie.id || movie._id
     }));
+    
+    // Limita a 12 filmes na página principal
+    movies.value = processedMovies.slice(0, 12);
   } catch (e) {
     errorMsg.value = 'Erro ao buscar filmes.'
     movies.value = []
@@ -213,11 +219,53 @@ watch([search, selectedGenres], fetchMovies)
 }
 .movies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem 1.5rem;
-  margin-top: 1.5rem;
-  justify-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 2rem;
+  padding: 0.5rem;
+  align-items: stretch;
+  margin-top: 2rem;
 }
+.view-all-container {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 1rem;
+}
+.view-all-btn {
+  display: inline-block;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  padding: 0.8rem 2rem;
+  border-radius: 0.8rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+.view-all-btn:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .movies-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .movies-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .movies-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+}
+
 .movie-card {
   background: #fff;
   border-radius: 1.1rem;

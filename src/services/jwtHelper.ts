@@ -1,21 +1,54 @@
 // src/services/jwtHelper.ts
-export function logJwtAndRoles() {
+
+/**
+ * Verifica se o usuário atual tem role de ADMIN
+ */
+export function isAdmin(): boolean {
+  const token = localStorage.getItem('token');
+  if (!token) return false;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    
+    // Verifica diferentes formatos de roles no JWT
+    if (payload.authorities && Array.isArray(payload.authorities)) {
+      return payload.authorities.includes('ADMIN') || payload.authorities.includes('ROLE_ADMIN');
+    }
+    if (payload.roles && Array.isArray(payload.roles)) {
+      return payload.roles.includes('ADMIN') || payload.roles.includes('ROLE_ADMIN');
+    }
+    if (payload.role) {
+      return payload.role === 'ADMIN' || payload.role === 'ROLE_ADMIN';
+    }
+    
+    return false;
+  } catch (e) {
+    console.error('Erro ao verificar permissões:', e);
+    return false;
+  }
+}
+
+/**
+ * Extrai e loga informações do JWT
+ */
+export function logJwtAndRoles(): void {
   const token = localStorage.getItem('token');
   if (!token) {
     console.log('JWT não encontrado.');
     return;
   }
-  console.log('JWT:', token);
+  
   try {
-    const payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(payload));
-    // Adapta para role (string), roles (array) ou authorities (array)
-    let roles = [];
-    if (decoded.roles) roles = decoded.roles;
-    else if (decoded.authorities) roles = decoded.authorities;
-    else if (decoded.role) roles = [decoded.role];
-    console.log('Roles extraídas do JWT:', roles);
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    console.log('JWT Payload:', payload);
+    
+    let roles: string[] = [];
+    if (payload.roles) roles = payload.roles;
+    else if (payload.authorities) roles = payload.authorities;
+    else if (payload.role) roles = [payload.role];
+    
+    console.log('Roles encontradas:', roles);
   } catch (e) {
-    console.log('Erro ao decodificar JWT:', e);
+    console.error('Erro ao decodificar JWT:', e);
   }
 }

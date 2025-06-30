@@ -41,9 +41,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import api from '../api/axios'
 import { useRouter } from 'vue-router'
+import { isAdmin } from '../services/jwtHelper.ts'
+import type { MovieFormData } from '../types'
 
 const title = ref('')
 const description = ref('')
@@ -67,30 +69,75 @@ async function fetchGenres() {
   }
 }
 
+const currentYear = new Date().getFullYear();
+
+const isFormValid = computed(() => {
+  return (
+    title.value.length >= 2 &&
+    title.value.length <= 100 &&
+    description.value.length >= 10 &&
+    description.value.length <= 1000 &&
+    imageUrl.value.match(/^https?:\/\/.*/) &&
+    year.value >= 1900 &&
+    year.value <= currentYear &&
+    selectedGenres.value.length > 0 &&
+    selectedGenres.value.length <= 3 &&
+    (!trailerUrl.value || trailerUrl.value.match(/^https?:\/\/(www\.)?youtube\.com\/.*|https?:\/\/youtu\.be\/.*/))
+  );
+});
+
 async function handleSubmit() {
-  error.value = ''
-  success.value = false
+  error.value = '';
+  success.value = false;
+
+  // Validações específicas
   if (selectedGenres.value.length === 0) {
-    error.value = 'Selecione pelo menos um gênero.'
-    return
+    error.value = 'Selecione pelo menos um gênero.';
+    return;
   }
+
+  if (selectedGenres.value.length > 3) {
+    error.value = 'Selecione no máximo 3 gêneros.';
+    return;
+  }
+
+  if (year.value > currentYear) {
+    error.value = `O ano não pode ser maior que ${currentYear}.`;
+    return;
+  }
+
   try {
-    await api.post('/movies', {
-      title: title.value,
-      description: description.value,
-      imageUrl: imageUrl.value,
+    const movieData = {
+      title: title.value.trim(),
+      description: description.value.trim(),
+      imageUrl: imageUrl.value.trim(),
       year: year.value,
-      gender: selectedGenres.value,
-      trailerUrl: trailerUrl.value
-    })
-    success.value = true
-    setTimeout(() => router.push('/'), 1200)
+      gender: selectedGenres.value
+    };
+
+    if (trailerUrl.value) {
+      movieData.trailerUrl = trailerUrl.value.trim();
+    }
+
+    const response = await api.post('/movies', movieData);
+    
+    if (response.status === 201 || response.status === 200) {
+      success.value = true;
+      setTimeout(() => router.push('/'), 1200);
+    }
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Erro ao criar filme.'
+    console.error('Erro ao criar filme:', err);
+    error.value = err.response?.data?.message || 'Erro ao criar filme.';
   }
 }
 
-onMounted(fetchGenres)
+onMounted(async () => {
+  if (!isAdmin()) {
+    router.push('/');
+    return;
+  }
+  await fetchGenres();
+})
 </script>
 
 <style scoped>
