@@ -40,7 +40,17 @@
       <h2>Avaliações</h2>
       <div v-if="errorMsg" class="review-error">{{ errorMsg }}</div>
       <ReviewForm @submit="submitReview" />
-      <MovieReview v-for="review in movie.reviews" :key="review.id || review._id" :review="review" />
+      <div v-if="reviewsError" class="review-error">{{ reviewsError }}</div>
+      <MovieReview
+        v-for="review in reviews"
+        :key="review.id || review._id"
+        :review="review"
+        @edit-review="handleEditReview"
+        @delete-review="handleDeleteReview"
+        @add-comment="(payload, done) => handleAddComment(payload, done, review)"
+        @edit-comment="(payload, done) => handleEditComment(payload, done, review)"
+        @delete-comment="payload => handleDeleteComment(payload, review)"
+      />
     </div>
   </div>
 </template>
@@ -55,6 +65,8 @@ import axios from 'axios';
 
 const route = useRoute()
 const movie = ref<any>(null)
+const reviews = ref<any[]>([])
+const reviewsError = ref('')
 const favorites = ref<number[]>(JSON.parse(localStorage.getItem('favorites') || '[]'))
 const errorMsg = ref('')
 
@@ -74,22 +86,112 @@ async function fetchMovie() {
     id: data.id || data._id
   }
 }
+async function fetchReviews() {
+  reviewsError.value = ''
+  try {
+    const { data } = await api.get(`/reviews/movie/${route.params.id}`)
+    reviews.value = data
+  } catch (error: any) {
+    reviews.value = []
+    if (axios.isAxiosError(error) && error.response) {
+      if (error.response.status === 404) {
+        reviewsError.value = 'Nenhuma avaliação encontrada para este filme.'
+      } else {
+        reviewsError.value = error.response.data?.message || 'Erro ao buscar avaliações.'
+      }
+    } else {
+      reviewsError.value = 'Erro ao buscar avaliações.'
+    }
+  }
+}
 async function submitReview(review: any) {
   errorMsg.value = ''
   try {
-    await api.post(`/movies/${route.params.id}/reviews`, review)
-    fetchMovie()
+    await api.post(`/reviews/movies/${route.params.id}/reviews`, review)
+    await fetchMovie() // Atualiza dados do filme (inclui média)
+    await fetchReviews() // Atualiza avaliações
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       if (error.response.status === 404) {
-        errorMsg.value = 'Não foi possível encontrar o filme para avaliar. Tente recarregar a página ou verifique se o filme ainda existe.'
+        errorMsg.value = 'Não foi possível encontrar o filme para avaliar. Tente recarregar a página ou verifique se o filme ainda existe.';
       } else if (error.response.status === 403) {
-        errorMsg.value = 'Você precisa estar autenticado para avaliar.'
+        errorMsg.value = 'Você precisa estar autenticado para avaliar.';
       } else {
-        errorMsg.value = error.response.data?.message || 'Erro ao criar a avaliação.'
+        errorMsg.value = error.response.data?.message || 'Erro ao criar a avaliação.';
       }
     } else {
-      errorMsg.value = 'Erro ao criar a avaliação.'
+      errorMsg.value = 'Erro ao criar a avaliação.';
+    }
+  }
+}
+async function handleEditReview(editedReview: any, done: Function) {
+  try {
+    await api.put(`/reviews/${editedReview.id || editedReview._id}`, {
+      comentario: editedReview.comentario,
+      nota: editedReview.nota
+    })
+    await fetchReviews()
+    await fetchMovie()
+    done && done()
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      alert('Permissão negada: apenas o autor da avaliação pode editar.')
+    } else {
+      alert('Erro ao editar avaliação.')
+    }
+  }
+}
+async function handleDeleteReview(review: any) {
+  try {
+    await api.delete(`/reviews/${review.id || review._id}`)
+    await fetchReviews()
+    await fetchMovie()
+  } catch (error: any) {
+    alert('Erro ao excluir avaliação.')
+  }
+}
+async function handleAddComment(comment: any, done: Function, review: any) {
+  try {
+    await api.post(`/reviews/${review.id || review._id}/comments`, {
+      texto: comment.texto
+    })
+    await fetchReviews()
+    done && done()
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      alert('Você não tem permissão para comentar. Faça login.')
+    } else {
+      alert('Erro ao adicionar comentário.')
+    }
+  }
+}
+async function handleEditComment({ commentId, texto }: any, done: Function, review: any) {
+  try {
+    await api.put(`/reviews/${review.id || review._id}/comments/${commentId}`, { texto })
+    await fetchReviews()
+    done && done()
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      const msg = 'Permissão negada: apenas o autor ou um administrador pode editar este comentário.'
+      done ? done(msg) : alert(msg)
+    } else {
+      const msg = 'Erro ao editar comentário.'
+      done ? done(msg) : alert(msg)
+    }
+  }
+}
+async function handleDeleteComment({ commentId }: any, review: any, done?: Function) {
+  try {
+    await api.delete(`/reviews/${review.id || review._id}/comments/${commentId}`)
+    await fetchReviews()
+    done && done()
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      const msg = 'Permissão negada: apenas o autor ou um administrador pode excluir este comentário.'
+      done ? done(msg) : alert(msg)
+    } else {
+      const msg = 'Erro ao excluir comentário.'
+      done ? done(msg) : alert(msg)
     }
   }
 }
@@ -101,7 +203,10 @@ function getYoutubeEmbedUrl(url: string) {
   }
   return url;
 }
-onMounted(fetchMovie)
+onMounted(() => {
+  fetchMovie()
+  fetchReviews()
+})
 </script>
 
 <style scoped>

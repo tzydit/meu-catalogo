@@ -26,8 +26,19 @@ import { ref, onMounted, watch, computed } from 'vue';
 import api from '../api/axios';
 import MovieCard from '../components/MovieCard.vue';
 import GenreFilter from '../components/GenreFilter.vue';
-import { useRouter } from 'vue-router';
 import axios from 'axios';
+
+interface Movie {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  year: number;
+  averageRating: number;
+  gender: string[];
+  trailerUrl?: string;
+  // ...outros campos se necessário
+}
 
 function getUserRole() {
   const token = localStorage.getItem('token');
@@ -42,33 +53,45 @@ function getUserRole() {
 
 const isAdmin = computed(() => getUserRole() === 'ADMIN');
 
-const movies = ref([])
-const genres = ref([])
-const selectedGenres = ref([])
+const movies = ref<Movie[]>([])
+const genres = ref<string[]>([])
+const selectedGenres = ref<string[]>([])
 const search = ref('')
-const favorites = ref<number[]>(JSON.parse(localStorage.getItem('favorites') || '[]'))
-const router = useRouter()
-const generos = ref([]);
+const favorites = ref<string[]>(JSON.parse(localStorage.getItem('favorites') || '[]'))
+const generos = ref<string[]>([])
+const loading = ref(false)
+const errorMsg = ref('')
 
-function isFavorite(id: number) {
+function isFavorite(id: string) {
   return favorites.value.includes(id)
 }
-function toggleFavorite(movie: any) {
+function toggleFavorite(movie: Movie) {
   const idx = favorites.value.indexOf(movie.id)
   if (idx === -1) favorites.value.push(movie.id)
   else favorites.value.splice(idx, 1)
   localStorage.setItem('favorites', JSON.stringify(favorites.value))
 }
 async function fetchMovies() {
+  loading.value = true
+  errorMsg.value = ''
   let url = '/movies?';
   if (search.value) url += `title=${encodeURIComponent(search.value)}&`;
-  if (selectedGenres.value.length) url += `gender=${selectedGenres.value.join(',')}`;
-  const { data } = await api.get(url);
-  // Garante que cada filme tenha o campo 'id' (compatível com MongoDB)
-  movies.value = data.map((movie: any) => ({
-    ...movie,
-    id: movie.id || movie._id
-  }));
+  if (selectedGenres.value.length) {
+    // Envia cada gênero como gender=GEN
+    url += selectedGenres.value.map(g => `gender=${encodeURIComponent(g)}`).join('&');
+  }
+  try {
+    const { data } = await api.get(url);
+    movies.value = data.map((movie: any) => ({
+      ...movie,
+      id: movie.id || movie._id
+    }));
+  } catch (e) {
+    errorMsg.value = 'Erro ao buscar filmes.'
+    movies.value = []
+  } finally {
+    loading.value = false
+  }
 }
 
 async function fetchGenres() {
@@ -93,7 +116,7 @@ onMounted(() => {
   fetchMovies()
   fetchGeneros()
 })
-watch(selectedGenres, fetchMovies)
+watch([search, selectedGenres], fetchMovies)
 </script>
 
 <style scoped>
@@ -190,9 +213,69 @@ watch(selectedGenres, fetchMovies)
 }
 .movies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem 1.5rem;
   margin-top: 1.5rem;
+  justify-items: center;
+}
+.movie-card {
+  background: #fff;
+  border-radius: 1.1rem;
+  box-shadow: 0 2px 12px #e74c3c11;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s, box-shadow 0.15s;
+  width: 100%;
+  max-width: 260px;
+  min-width: 200px;
+  border: 1.5px solid #e0e0e0;
+}
+.movie-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 32px #e74c3c22;
+}
+.movie-img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  border-bottom: 1.5px solid #e0e0e0;
+}
+.movie-info {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.movie-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rating {
+  color: #e67e22;
+  font-weight: bold;
+  font-size: 1.08rem;
+}
+.fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  padding: 0;
+}
+.heart {
+  color: #bbb;
+  transition: color 0.2s;
+}
+.heart.filled {
+  color: #e74c3c;
+}
+.movie-card.favorite .heart {
+  color: #e74c3c;
+}
+.match-all-toggle {
+  display: none;
 }
 @media (max-width: 700px) {
   .about-section {
