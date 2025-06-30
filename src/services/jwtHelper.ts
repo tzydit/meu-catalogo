@@ -52,3 +52,42 @@ export function logJwtAndRoles(): void {
     console.error('Erro ao decodificar JWT:', e);
   }
 }
+
+/**
+ * Verifica se há um usuário autenticado
+ */
+export function isAuthenticated(): boolean {
+  const token = localStorage.getItem('token');
+  return !!token;
+}
+
+/**
+ * Obtém o nome de usuário do token JWT
+ */
+export function getUsername(): string | null {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.sub || payload.username || null;
+  } catch (e) {
+    console.error('Erro ao obter username:', e);
+    return null;
+  }
+}
+
+/**
+ * Verifica se o usuário atual é o mesmo do perfil
+ */
+export function isCurrentUser(username: string): boolean {
+  return getUsername() === username;
+}
+
+/**
+ * Obtém o token JWT para requisições autenticadas
+ */
+export function getAuthHeader(): { Authorization: string } | undefined {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : undefined;
+}

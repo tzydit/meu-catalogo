@@ -3,20 +3,30 @@
     <div class="profile-box">
       <h2>Perfil do Usuário</h2>
       <div class="user-info">
-        <p><strong>Usuário:</strong> {{ username }}</p>
+        <p><strong>Usuário:</strong> {{ profileUsername }}</p>
       </div>
-      <button class="logout-btn" @click="logout">Sair</button>
+      <button v-if="isOwner" class="logout-btn" @click="logout">Sair</button>
     </div>
-    <div class="reviews-section">
-      <h3>Minhas Avaliações</h3>
-      <div v-if="reviews.length === 0" class="no-reviews">Nenhuma avaliação encontrada.</div>
-      <div v-else>
-        <div v-for="review in reviews" :key="review.id" class="review-card">
-          <div class="review-header">
-            <span class="movie-title">Filme: {{ review.movieTitle }}</span>
-            <span class="stars">{{ '★'.repeat(review.nota) + '☆'.repeat(5 - review.nota) }}</span>
-          </div>
-          <p class="comment">{{ review.comentario }}</p>
+
+    <div class="favorites-section">
+      <h3>Filmes Favoritos</h3>
+      <div v-if="loading" class="loading">Carregando...</div>
+      <div v-else-if="favorites.length === 0" class="no-items">Nenhum filme favorito.</div>
+      <div v-else class="favorites-grid">
+        <div v-for="movie in favorites" :key="movie.movieId" class="movie-card">
+          <router-link :to="'/movies/' + movie.movieId" class="movie-link">
+            <img :src="movie.imageUrl" :alt="movie.title" class="movie-img" />
+            <div class="movie-info">
+              <h4>{{ movie.title }}</h4>
+              <span class="year">{{ movie.year }}</span>
+            </div>
+          </router-link>
+          <button v-if="isOwner" 
+                  class="remove-btn" 
+                  @click="handleRemoveFavorite(movie.movieId)"
+                  :disabled="loading">
+            Remover dos favoritos
+          </button>
         </div>
       </div>
     </div>
@@ -24,120 +34,191 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import api from '../api/axios';
+import { ref, onMounted, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { isCurrentUser } from '../services/jwtHelper';
+import { getUserFavorites, removeFavorite } from '../services/userService';
 
 const router = useRouter();
-const username = localStorage.getItem('username') || '';
-const reviews = ref<any[]>([]);
+const route = useRoute();
 
-function logout() {
+// Garante que sempre teremos um username válido
+const profileUsername = computed(() => {
+  const username = route.params.username || localStorage.getItem('username');
+  if (!username) {
+    router.push('/login');
+    return '';
+  }
+  return username.toString();
+});
+
+const isOwner = computed(() => isCurrentUser(profileUsername.value));
+const favorites = ref<any[]>([]);
+const loading = ref(false);
+
+async function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('username');
   router.push('/login');
 }
 
-async function fetchUserReviews() {
+async function fetchUserFavorites() {
+  if (!profileUsername.value) return;
+  
   try {
-    const { data } = await api.get(`/usuarios/${username}/avaliacoes`);
-    reviews.value = data;
-  } catch (e) {
-    reviews.value = [];
+    loading.value = true;
+    favorites.value = await getUserFavorites(profileUsername.value);
+  } catch (error) {
+    console.error('Erro ao carregar favoritos:', error);
+    favorites.value = [];
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function handleRemoveFavorite(movieId: string) {
+  if (!isOwner.value) return;
+
+  try {
+    loading.value = true;
+    await removeFavorite(movieId);
+    await fetchUserFavorites();
+  } catch (error) {
+    console.error('Erro ao remover favorito:', error);
+  } finally {
+    loading.value = false;
   }
 }
 
 onMounted(() => {
-  fetchUserReviews();
+  if (profileUsername.value) {
+    fetchUserFavorites();
+  }
 });
 </script>
 
 <style scoped>
 .profile-container {
-  max-width: 600px;
-  margin: 6.5rem auto 2rem auto;
-  padding: 0 1rem 2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
 }
+
 .profile-box {
   background: var(--color-card);
   border-radius: 1rem;
   padding: 2rem;
   margin-bottom: 2rem;
+  border: 1px solid var(--color-border);
   box-shadow: var(--color-shadow);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
 }
-.user-info {
-  font-size: 1.1rem;
+
+.profile-box h2 {
+  margin: 0 0 1rem 0;
   color: var(--color-text);
-  text-align: center;
 }
-.logout-btn {
-  background: var(--color-primary);
-  color: #fff;
-  border: none;
-  border-radius: 0.75rem;
-  padding: 0.7rem 1.2rem;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 1rem;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.logout-btn:hover {
-  background: var(--color-primary-dark);
-}
-.reviews-section {
-  background: var(--color-bg-alt);
-  border-radius: 1rem;
-  box-shadow: 0 1.5px 6px #0001;
-  padding: 1.5rem 1rem;
-  border: 1.5px solid var(--color-border);
-  width: 100%;
-}
-.review-card {
-  background: var(--color-card);
-  border-radius: 0.7rem;
-  padding: 1rem;
+
+.user-info {
   margin-bottom: 1rem;
 }
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+
+.logout-btn {
+  background: #ff4081;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background: #f50057;
+}
+
+.favorites-section {
+  margin-top: 2rem;
+}
+
+.favorites-section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.movie-card {
+  background: var(--color-card);
+  border-radius: 0.8rem;
+  overflow: hidden;
+  box-shadow: var(--color-shadow);
+  transition: transform 0.2s;
+  border: 1px solid var(--color-border);
+}
+
+.movie-card:hover {
+  transform: translateY(-4px);
+}
+
+.movie-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.movie-img {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.movie-info {
+  padding: 1rem;
+}
+
+.movie-info h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text);
   margin-bottom: 0.5rem;
 }
-.movie-title {
-  color: var(--color-primary);
-  font-weight: 600;
+
+.year {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
 }
-.stars {
-  color: #ffd700;
-  font-size: 1.1rem;
+
+.remove-btn {
+  width: 100%;
+  padding: 0.8rem;
+  background: #ff4081;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s;
 }
-.comment {
-  color: var(--color-text);
-  margin: 0;
+
+.remove-btn:hover {
+  background: #f50057;
 }
-.no-reviews {
-  color: #aaa;
+
+.remove-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.loading,
+.no-items {
   text-align: center;
-  margin-top: 1rem;
-}
-@media (max-width: 700px) {
-  .profile-container {
-    margin: 7.5rem 0.2rem 1.5rem 0.2rem;
-    padding: 0;
-  }
-  .profile-box, .reviews-section {
-    padding: 1.2rem 0.5rem;
-    border-radius: 1rem;
-  }
+  padding: 2rem;
+  color: var(--color-text-light);
+  font-size: 1.1rem;
 }
 </style>

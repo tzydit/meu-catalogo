@@ -15,8 +15,12 @@
             </template>
           </span>
           <span class="rating">⭐ {{ movie.averageRating?.toFixed(1) ?? '0.0' }}</span>
-          <button class="fav-btn" @click="toggleFavorite(movie)">
-            <span :class="isFavorite(movie.id) ? 'heart filled' : 'heart'">♥</span>
+          <button v-if="isAuthenticated()" 
+                  class="fav-btn" 
+                  @click="handleToggleFavorite"
+                  :disabled="isLoading">
+            <span v-if="isLoading" class="loader"></span>
+            <span v-else :class="isFavorite(movie.id) ? 'heart filled' : 'heart'">♥</span>
           </button>
         </div>
         <p class="synopsis">{{ movie.description }}</p>
@@ -57,33 +61,72 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import api from '../api/axios';
 import MovieReview from '../components/MovieReview.vue';
 import ReviewForm from '../components/ReviewForm.vue';
+import { isAuthenticated } from '../services/jwtHelper';
+import { getUserFavorites, toggleFavorite } from '../services/userService';
 import axios from 'axios';
 
-const route = useRoute()
-const movie = ref<any>(null)
-const reviews = ref<any[]>([])
-const reviewsError = ref('')
-const favorites = ref<number[]>(JSON.parse(localStorage.getItem('favorites') || '[]'))
-const errorMsg = ref('')
+const route = useRoute();
+const router = useRouter();
+const movie = ref<any>(null);
+const reviews = ref<any[]>([]);
+const reviewsError = ref('');
+const errorMsg = ref('');
+const favorites = ref<any[]>([]);
+const isLoading = ref(false);
 
-function isFavorite(id: number) {
-  return favorites.value.includes(id)
+// Carrega os favoritos do usuário
+async function loadFavorites() {
+  if (!isAuthenticated()) return;
+  
+  try {
+    const username = localStorage.getItem('username');
+    if (username) {
+      favorites.value = await getUserFavorites(username);
+    }
+  } catch (error) {
+    console.error('Erro ao carregar favoritos:', error);
+  }
 }
-function toggleFavorite(movie: any) {
-  const idx = favorites.value.indexOf(movie.id)
-  if (idx === -1) favorites.value.push(movie.id)
-  else favorites.value.splice(idx, 1)
-  localStorage.setItem('favorites', JSON.stringify(favorites.value))
+
+// Verifica se um filme é favorito
+function isFavorite(movieId: string) {
+  return favorites.value.some(fav => fav.movieId === movieId);
 }
+
+// Adiciona/remove dos favoritos
+async function handleToggleFavorite() {
+  if (!isAuthenticated()) {
+    router.push('/login');
+    return;
+  }
+
+  if (!movie.value) return;
+
+  try {
+    isLoading.value = true;
+    await toggleFavorite(movie.value.id);
+    await loadFavorites(); // Recarrega a lista de favoritos
+  } catch (error) {
+    console.error('Erro ao alternar favorito:', error);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 async function fetchMovie() {
-  const { data } = await api.get(`/movies/${route.params.id}`)
-  movie.value = {
-    ...data,
-    id: data.id || data._id
+  try {
+    const { data } = await api.get(`/movies/${route.params.id}`);
+    movie.value = {
+      ...data,
+      id: data.id || data._id
+    };
+  } catch (error) {
+    console.error('Erro ao carregar filme:', error);
+    errorMsg.value = 'Erro ao carregar o filme.';
   }
 }
 async function fetchReviews() {
@@ -203,9 +246,12 @@ function getYoutubeEmbedUrl(url: string) {
   }
   return url;
 }
-onMounted(() => {
-  fetchMovie()
-  fetchReviews()
+onMounted(async () => {
+  await Promise.all([
+    fetchMovie(),
+    fetchReviews(),
+    loadFavorites()
+  ]);
 })
 </script>
 
@@ -340,23 +386,46 @@ onMounted(() => {
 }
 
 .fav-btn {
-  background: transparent;
+  background: var(--color-card);
   border: none;
   cursor: pointer;
-  padding: 0.5rem;
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: 1rem;
+}
+
+.fav-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .heart {
-  color: #cbd5e0;
-  font-size: 1.5rem;
-  transition: color 0.2s ease;
+  color: var(--color-text);
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .heart.filled {
-  color: #e53e3e;
+  color: #ff4081;
+  transform: scale(1.1);
+}
+
+.loader {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--color-text);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @media (max-width: 768px) {
