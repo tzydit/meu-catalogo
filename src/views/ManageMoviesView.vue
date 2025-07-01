@@ -69,7 +69,8 @@ onMounted(fetchMovies);
 <style scoped>
 .manage-container {
   max-width: 900px;
-  margin: 2.5rem auto;
+  margin: 0 auto;
+  margin-top: 90px;
   padding: 2rem 1rem;
   background: var(--color-card);
   border-radius: 1.2rem;

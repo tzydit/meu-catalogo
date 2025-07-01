@@ -13,10 +13,21 @@ onMounted(() => {
   <router-view />
 </template>
 
-<style scoped>
+<style>
 body {
-  background: #181818;
-  color: #fff;
-  font-family: 'Inter', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  width: 100%;
+}
+
+@media (max-width: 400px) {
+  #app {
+    padding: 0;
+    margin: 0;
+    max-width: 100%;
+  }
 }
 </style>

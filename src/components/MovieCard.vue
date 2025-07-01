@@ -4,25 +4,30 @@
       <div class="movie-image-container">
         <img :src="movie.imageUrl" :alt="movie.title" class="movie-img" />
         <div class="movie-overlay">
-          <span class="movie-year">{{ movie.year }}</span>
-          <button class="fav-btn" @click.stop="$emit('toggle-favorite', movie)">
-            <span :class="favorite ? 'heart filled' : 'heart'">♥</span>
-          </button>
+          <div class="overlay-top">
+            <span class="movie-year">{{ movie.year }}</span>
+            <button class="fav-btn" @click.stop="$emit('toggle-favorite', movie)">
+              <span :class="favorite ? 'heart filled' : 'heart'">♥</span>
+            </button>
+          </div>
+          <div class="overlay-bottom">
+            <div class="rating-badge">
+              <span class="rating-star">⭐</span>
+              <span class="rating-value">{{ movie.averageRating?.toFixed(1) ?? '0.0' }}</span>
+            </div>
+          </div>
         </div>
+        <div class="card-shine"></div>
       </div>
       <div class="movie-info">
-        <h3>{{ movie.title }}</h3>
+        <h3 class="movie-title">{{ movie.title }}</h3>
         <div class="genre-tags">
-          <span v-for="(genre, index) in movieGenres" 
+          <span v-for="(genre, index) in movieGenres.slice(0, 2)" 
                 :key="index" 
                 class="genre-tag">
             {{ genre }}
           </span>
-        </div>
-        <div class="movie-meta">
-          <div class="rating-container">
-            <span class="rating">⭐ {{ movie.averageRating?.toFixed(1) ?? '0.0' }}</span>
-          </div>
+          <span v-if="movieGenres.length > 2" class="genre-more">+{{ movieGenres.length - 2 }}</span>
         </div>
       </div>
     </div>
@@ -66,6 +71,20 @@ const movieGenres = computed(() => {
   height: 100%;
   border: 1.5px solid var(--color-border);
   position: relative;
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .movie-card {
+    border-radius: 0.7rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .movie-card {
+    border-radius: 0.3rem;
+    min-width: 0;
+  }
 }
 
 .movie-card:hover {
@@ -77,6 +96,7 @@ const movieGenres = computed(() => {
   position: relative;
   width: 100%;
   aspect-ratio: 2/3;
+  min-width: 0;
 }
 
 .movie-img {
@@ -85,6 +105,13 @@ const movieGenres = computed(() => {
   object-fit: cover;
   border-bottom: 1px solid var(--color-border);
   transition: transform 0.3s ease;
+  min-width: 0;
+}
+
+@media (max-width: 400px) {
+  .movie-img {
+    border-radius: 0.3rem 0.3rem 0 0;
+  }
 }
 
 .movie-overlay {
@@ -99,57 +126,57 @@ const movieGenres = computed(() => {
   background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
 }
 
-.movie-year {
-  background: var(--color-primary);
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 1rem;
-  font-size: 0.9rem;
-  font-weight: 600;
+@media (max-width: 400px) {
+  .movie-overlay {
+    padding: 0.5rem;
+  }
 }
 
 .movie-info {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  flex: 1;
-  background: var(--color-card);
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .movie-info {
+    padding: 0.7rem;
+    gap: 0.4rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .movie-info {
+    padding: 0.4rem;
+    gap: 0.2rem;
+  }
 }
 
 .movie-info h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
   margin: 0;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
   color: var(--color-text);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
+  font-weight: 700;
+  line-height: 1.3;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .genre-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.2rem;
+  gap: 0.4rem;
 }
 
 .genre-tag {
   background: var(--color-bg-alt);
   color: var(--color-text);
-  padding: 0.3rem 0.8rem;
   border-radius: 1rem;
-  font-size: 0.8rem;
-  border: 1px solid var(--color-border);
-}
-
-.movie-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
+  font-size: 0.85em;
+  padding: 0.2em 0.7em;
+  margin-bottom: 0.2em;
 }
 
 .rating-container {
@@ -159,13 +186,13 @@ const movieGenres = computed(() => {
 }
 
 .rating {
-  color: #ffd700;
-  font-weight: bold;
-  font-size: 0.95rem;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 1.1em;
 }
 
 .fav-btn {
-  background: rgba(255, 255, 255, 0.2);
+  background: none;
   border: none;
   cursor: pointer;
   font-size: 1.3rem;

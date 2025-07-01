@@ -247,6 +247,9 @@ function getYoutubeEmbedUrl(url: string) {
   return url;
 }
 onMounted(async () => {
+  // Scroll para o topo da página
+  window.scrollTo(0, 0);
+  
   await Promise.all([
     fetchMovie(),
     fetchReviews(),
@@ -258,8 +261,9 @@ onMounted(async () => {
 <style scoped>
 .detail-container {
   max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
+  margin: 0 auto;
+  margin-top: 90px; /* Espaço para o header fixo */
+  padding: 2rem 1.5rem;
   background: #f8fafc;
 }
 
@@ -430,6 +434,7 @@ onMounted(async () => {
 
 @media (max-width: 768px) {
   .detail-container {
+    margin-top: 80px;
     padding: 1rem;
   }
 

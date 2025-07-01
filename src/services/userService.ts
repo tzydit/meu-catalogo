@@ -15,6 +15,9 @@ interface FavoriteMovie {
   title: string;
   imageUrl: string;
   year: number;
+  averageRating?: number;
+  gender?: string[];
+  description?: string;
 }
 
 /**

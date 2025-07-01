@@ -229,13 +229,14 @@ onMounted(async () => {
   align-items: flex-start;
   justify-content: center;
   padding: 2rem;
+  padding-top: 90px;
   background: var(--color-bg);
 }
 
 .form-container {
   width: 100%;
   max-width: 600px;
-  margin: 4.5rem auto 2rem;
+  margin: 0 auto 2rem;
   padding: 2rem;
   background: var(--color-card);
   border-radius: 1.2rem;

@@ -147,7 +147,7 @@ onMounted(async () => {
   align-items: flex-start;
   justify-content: center;
   background: var(--color-bg);
-  padding-top: 80px;
+  padding-top: 90px;
 }
 .form-container {
   background: var(--color-card);

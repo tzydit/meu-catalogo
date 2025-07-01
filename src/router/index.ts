@@ -23,6 +23,14 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior(_, __, savedPosition) {
+    // Se há uma posição salva (botão voltar), use ela
+    if (savedPosition) {
+      return savedPosition;
+    }
+    // Caso contrário, sempre vá para o topo
+    return { top: 0 };
+  },
 });
 
 export default router;

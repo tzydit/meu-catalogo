@@ -1,8 +1,4 @@
-// src/services/jwtHelper.ts
 
-/**
- * Verifica se o usuário atual tem role de ADMIN
- */
 export function isAdmin(): boolean {
   const token = localStorage.getItem('token');
   if (!token) return false;
@@ -28,9 +24,6 @@ export function isAdmin(): boolean {
   }
 }
 
-/**
- * Extrai e loga informações do JWT
- */
 export function logJwtAndRoles(): void {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -61,9 +54,6 @@ export function isAuthenticated(): boolean {
   return !!token;
 }
 
-/**
- * Obtém o nome de usuário do token JWT
- */
 export function getUsername(): string | null {
   const token = localStorage.getItem('token');
   if (!token) return null;
@@ -77,16 +67,10 @@ export function getUsername(): string | null {
   }
 }
 
-/**
- * Verifica se o usuário atual é o mesmo do perfil
- */
 export function isCurrentUser(username: string): boolean {
   return getUsername() === username;
 }
 
-/**
- * Obtém o token JWT para requisições autenticadas
- */
 export function getAuthHeader(): { Authorization: string } | undefined {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : undefined;

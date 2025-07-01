@@ -66,6 +66,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import Swal from 'sweetalert2'
 const props = defineProps<{ review: any }>();
 const emit = defineEmits(['edit-review', 'delete-review', 'add-comment', 'edit-comment', 'delete-comment']);
 const username = localStorage.getItem('username') || ''
@@ -102,9 +103,40 @@ function emitEdit() {
     editMode.value = false
   })
 }
-function emitDelete() {
-  if (confirm('Tem certeza que deseja excluir esta avaliação?')) {
+async function emitDelete() {
+  const result = await Swal.fire({
+    title: 'Excluir avaliação?',
+    text: 'Tem certeza que deseja excluir esta avaliação? Esta ação não pode ser desfeita.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sim, excluir!',
+    cancelButtonText: 'Cancelar',
+    reverseButtons: true,
+    customClass: {
+      popup: 'swal-popup',
+      title: 'swal-title',
+      confirmButton: 'swal-confirm-btn',
+      cancelButton: 'swal-cancel-btn'
+    }
+  });
+
+  if (result.isConfirmed) {
     emit('delete-review', props.review)
+    
+    // Mostrar sucesso
+    Swal.fire({
+      title: 'Excluída!',
+      text: 'Sua avaliação foi excluída com sucesso.',
+      icon: 'success',
+      timer: 2000,
+      showConfirmButton: false,
+      customClass: {
+        popup: 'swal-popup',
+        title: 'swal-title'
+      }
+    });
   }
 }
 function addComment() {
@@ -160,17 +192,46 @@ async function saveCommentEdit(coment: any) {
 async function deleteComment(coment: any) {
   const commentId = coment.id || coment._id;
   if (!commentId) {
-    alert('Comentário inválido. Não é possível excluir.');
+    Swal.fire({
+      title: 'Erro!',
+      text: 'Comentário inválido. Não é possível excluir.',
+      icon: 'error',
+      confirmButtonColor: '#e74c3c',
+      customClass: {
+        popup: 'swal-popup',
+        title: 'swal-title',
+        confirmButton: 'swal-confirm-btn'
+      }
+    });
     return;
   }
 
   // Mensagem diferente para admins
   const isAdminDeleting = isAdmin.value && coment.autor !== username;
-  const confirmMessage = isAdminDeleting
+  const title = isAdminDeleting ? 'Excluir comentário de usuário?' : 'Excluir seu comentário?';
+  const text = isAdminDeleting
     ? `Tem certeza que deseja excluir o comentário do usuário "${coment.autor}"?`
     : 'Tem certeza que deseja excluir seu comentário?';
 
-  if (!confirm(confirmMessage)) return;
+  const result = await Swal.fire({
+    title,
+    text,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sim, excluir!',
+    cancelButtonText: 'Cancelar',
+    reverseButtons: true,
+    customClass: {
+      popup: 'swal-popup',
+      title: 'swal-title',
+      confirmButton: 'swal-confirm-btn',
+      cancelButton: 'swal-cancel-btn'
+    }
+  });
+
+  if (!result.isConfirmed) return;
 
   try {
     emit('delete-comment', {
@@ -178,18 +239,45 @@ async function deleteComment(coment: any) {
       isAdminAction: isAdminDeleting
     }, (errMsg?: string) => {
       if (errMsg) {
-        alert(errMsg);
+        Swal.fire({
+          title: 'Erro!',
+          text: errMsg,
+          icon: 'error',
+          confirmButtonColor: '#e74c3c',
+          customClass: {
+            popup: 'swal-popup',
+            title: 'swal-title',
+            confirmButton: 'swal-confirm-btn'
+          }
+        });
       } else {
-        // Feedback de sucesso
-        const successMessage = isAdminDeleting
-          ? `Comentário do usuário "${coment.autor}" excluído com sucesso.`
-          : 'Comentário excluído com sucesso.';
-        console.log(successMessage);
+        // Mostrar sucesso
+        Swal.fire({
+          title: 'Excluído!',
+          text: 'Comentário excluído com sucesso.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false,
+          customClass: {
+            popup: 'swal-popup',
+            title: 'swal-title'
+          }
+        });
       }
     });
   } catch (error) {
     console.error('Erro ao excluir comentário:', error);
-    alert('Erro ao excluir comentário. Tente novamente.');
+    Swal.fire({
+      title: 'Erro!',
+      text: 'Erro ao excluir comentário. Tente novamente.',
+      icon: 'error',
+      confirmButtonColor: '#e74c3c',
+      customClass: {
+        popup: 'swal-popup',
+        title: 'swal-title',
+        confirmButton: 'swal-confirm-btn'
+      }
+    });
   }
 }
 
@@ -573,5 +661,72 @@ function isAdminDeleting(coment: any): boolean {
   .add-comment-form button {
     width: 100%;
   }
+}
+
+/* Estilos customizados para SweetAlert2 - Reviews e Comentários */
+:global(.swal-popup) {
+  border-radius: 1.2rem !important;
+  padding: 2rem !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid var(--color-border) !important;
+  background: var(--color-card) !important;
+}
+
+:global(.swal-title) {
+  color: var(--color-text) !important;
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+:global(.swal2-html-container) {
+  color: var(--color-text-light) !important;
+  font-size: 1.1rem !important;
+  line-height: 1.5 !important;
+}
+
+:global(.swal-confirm-btn) {
+  background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+  border: none !important;
+  border-radius: 0.8rem !important;
+  padding: 0.8rem 1.5rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+:global(.swal-confirm-btn:hover) {
+  background: linear-gradient(135deg, #c0392b, #a93226) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4) !important;
+}
+
+:global(.swal-cancel-btn) {
+  background: var(--color-bg-alt) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0.8rem !important;
+  padding: 0.8rem 1.5rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+:global(.swal-cancel-btn:hover) {
+  background: var(--color-border) !important;
+  transform: translateY(-2px) !important;
+}
+
+:global(.swal2-icon.swal2-warning) {
+  border-color: #f39c12 !important;
+  color: #f39c12 !important;
+}
+
+:global(.swal2-icon.swal2-success) {
+  border-color: #28a745 !important;
+  color: #28a745 !important;
+}
+
+:global(.swal2-icon.swal2-error) {
+  border-color: #e74c3c !important;
+  color: #e74c3c !important;
 }
 </style>

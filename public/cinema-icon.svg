@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32">
+  <defs>
+    <linearGradient id="filmGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="reelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Corpo da câmera/projetor -->
+  <rect x="15" y="35" width="70" height="30" rx="8" fill="url(#filmGradient)" />
+  
+  <!-- Rolo de filme esquerdo -->
+  <circle cx="25" cy="25" r="12" fill="url(#reelGradient)" />
+  <circle cx="25" cy="25" r="8" fill="none" stroke="#fff" stroke-width="2" />
+  <circle cx="25" cy="25" r="3" fill="#fff" />
+  
+  <!-- Rolo de filme direito -->
+  <circle cx="75" cy="25" r="12" fill="url(#reelGradient)" />
+  <circle cx="75" cy="25" r="8" fill="none" stroke="#fff" stroke-width="2" />
+  <circle cx="75" cy="25" r="3" fill="#fff" />
+  
+  <!-- Filme conectando os rolos -->
+  <rect x="37" y="21" width="26" height="8" fill="#1f2937" />
+  
+  <!-- Perfurações do filme -->
+  <rect x="39" y="22" width="2" height="2" fill="#6b7280" />
+  <rect x="43" y="22" width="2" height="2" fill="#6b7280" />
+  <rect x="47" y="22" width="2" height="2" fill="#6b7280" />
+  <rect x="51" y="22" width="2" height="2" fill="#6b7280" />
+  <rect x="55" y="22" width="2" height="2" fill="#6b7280" />
+  <rect x="59" y="22" width="2" height="2" fill="#6b7280" />
+  
+  <rect x="39" y="25" width="2" height="2" fill="#6b7280" />
+  <rect x="43" y="25" width="2" height="2" fill="#6b7280" />
+  <rect x="47" y="25" width="2" height="2" fill="#6b7280" />
+  <rect x="51" y="25" width="2" height="2" fill="#6b7280" />
+  <rect x="55" y="25" width="2" height="2" fill="#6b7280" />
+  <rect x="59" y="25" width="2" height="2" fill="#6b7280" />
+  
+  <!-- Lente do projetor -->
+  <circle cx="50" cy="50" r="12" fill="#1f2937" />
+  <circle cx="50" cy="50" r="8" fill="#374151" />
+  <circle cx="50" cy="50" r="5" fill="#4b5563" />
+  <circle cx="52" cy="48" r="2" fill="#9ca3af" opacity="0.7" />
+  
+  <!-- Estrelas decorativas -->
+  <polygon points="20,75 22,81 28,81 23,85 25,91 20,87 15,91 17,85 12,81 18,81" fill="#fbbf24" />
+  <polygon points="80,75 81,79 85,79 82,82 83,86 80,84 77,86 78,82 75,79 79,79" fill="#fbbf24" />
+  
+  <!-- Texto do filme (opcional) -->
+  <rect x="30" y="70" width="40" height="4" rx="2" fill="#6b7280" opacity="0.6" />
+  <rect x="35" y="77" width="30" height="3" rx="1.5" fill="#6b7280" opacity="0.4" />
+</svg>
