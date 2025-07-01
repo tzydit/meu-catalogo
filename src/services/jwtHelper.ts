@@ -27,20 +27,11 @@ export function isAdmin(): boolean {
 export function logJwtAndRoles(): void {
   const token = localStorage.getItem('token');
   if (!token) {
-    console.log('JWT não encontrado.');
     return;
   }
   
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    console.log('JWT Payload:', payload);
-    
-    let roles: string[] = [];
-    if (payload.roles) roles = payload.roles;
-    else if (payload.authorities) roles = payload.authorities;
-    else if (payload.role) roles = [payload.role];
-    
-    console.log('Roles encontradas:', roles);
+    JSON.parse(atob(token.split('.')[1]));
   } catch (e) {
     console.error('Erro ao decodificar JWT:', e);
   }

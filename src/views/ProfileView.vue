@@ -71,7 +71,6 @@ async function fetchUserFavorites() {
   try {
     loading.value = true;
     const favoriteMovies = await getUserFavorites(profileUsername.value);
-    console.log('Favoritos carregados:', favoriteMovies);
     
     // Buscar detalhes completos de cada filme para ter a avaliação
     const moviesWithDetails = await Promise.all(
@@ -92,7 +91,6 @@ async function fetchUserFavorites() {
     );
     
     favorites.value = moviesWithDetails;
-    console.log('Favoritos com detalhes:', favorites.value);
   } catch (error) {
     console.error('Erro ao carregar favoritos:', error);
     favorites.value = [];

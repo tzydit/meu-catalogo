@@ -120,11 +120,8 @@ async function fetchMovies() {
     }
     
     const url = params.toString() ? `/movies?${params.toString()}` : '/movies';
-    console.log('Fazendo busca com URL:', url);
-    console.log('Gêneros selecionados:', selectedGenres.value);
     
     const { data } = await api.get(url);
-    console.log('Dados recebidos do backend:', data);
     
     let filteredMovies = data.map((movie: any) => ({
       ...movie,
@@ -133,11 +130,8 @@ async function fetchMovies() {
     
     // Filtragem adicional no frontend para garantir que funcione
     if (selectedGenres.value.length > 0) {
-      console.log('Aplicando filtro no frontend...');
       filteredMovies = filteredMovies.filter((movie: any) => {
         const movieGenres = Array.isArray(movie.gender) ? movie.gender : [movie.gender].filter(Boolean);
-        console.log(`Filme "${movie.title}" tem gêneros:`, movieGenres);
-        console.log('Gêneros selecionados para comparar:', selectedGenres.value);
         
         // Mudança: agora verifica se o filme tem TODOS os gêneros selecionados (interseção)
         const hasAllSelectedGenres = selectedGenres.value.every(selectedGenre => 
@@ -152,17 +146,12 @@ async function fetchMovies() {
                          normalizedMovieGenre.includes(normalizedSelectedGenre) ||
                          normalizedSelectedGenre.includes(normalizedMovieGenre);
             
-            if (match) {
-              console.log(`✓ Match encontrado: "${movieGenre}" <-> "${selectedGenre}"`);
-            }
             return match;
           })
         );
         
-        console.log(`Filme "${movie.title}" ${hasAllSelectedGenres ? 'INCLUÍDO' : 'EXCLUÍDO'}`);
         return hasAllSelectedGenres;
       });
-      console.log('Filmes após filtro frontend:', filteredMovies.length, 'filmes');
     }
     
     // Não limita mais os filmes na página principal
@@ -196,12 +185,10 @@ async function fetchGenres() {
         .replace(/AnimaÃ§Ã£o/g, 'Animação')
         .replace(/DocumentÃ¡rio/g, 'Documentário');
     });
-    console.log('Gêneros disponíveis carregados (após normalização):', genres.value);
   } catch (error) {
     console.error('Erro ao buscar gêneros:', error);
     // Fallback com gêneros comuns se a API falhar
     genres.value = ['Ação', 'Aventura', 'Comédia', 'Drama', 'Horror', 'Romance', 'Ficção Científica', 'Thriller', 'Animação', 'Documentário', 'Suspense'];
-    console.log('Usando gêneros fallback:', genres.value);
   }
 }
 
@@ -211,13 +198,11 @@ onMounted(() => {
 })
 
 // Watcher separado para debug
-watch(selectedGenres, (newGenres) => {
-  console.log('Gêneros selecionados mudaram:', newGenres)
+watch(selectedGenres, () => {
   fetchMovies()
 }, { deep: true })
 
 watch(search, () => {
-  console.log('Busca mudou:', search.value)
   fetchMovies()
 })
 </script>

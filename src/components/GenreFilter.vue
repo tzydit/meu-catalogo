@@ -25,13 +25,11 @@ const emit = defineEmits(['update:modelValue'])
 const selectedGenres = ref([...props.modelValue])
 
 function updateSelection() {
-  console.log('Gêneros selecionados no componente:', selectedGenres.value)
   emit('update:modelValue', selectedGenres.value)
 }
 
 function clearAll() {
   selectedGenres.value = []
-  console.log('Filtros limpos')
   emit('update:modelValue', selectedGenres.value)
 }
 

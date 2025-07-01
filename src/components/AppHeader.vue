@@ -64,7 +64,6 @@ function isUserAdmin() {
   
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    console.log('Debug - JWT payload:', payload);
     
     // Verifica diferentes formatos de roles no JWT
     if (payload.authorities && Array.isArray(payload.authorities)) {
