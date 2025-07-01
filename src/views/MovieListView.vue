@@ -2,12 +2,12 @@
   <div class="main-container">
     <section class="about-section">
       <h2>Como funciona o Meu Catálogo de Filmes?</h2>
-      <ul>
-        <li>Pesquise filmes por título ou gênero.</li>
-        <li>Adicione filmes aos seus favoritos para acessar rapidamente depois.</li>
-        <li>Veja detalhes, avaliações e escreva suas próprias reviews.</li>
-        <li v-if="isAdmin">Crie novos filmes para compartilhar com a comunidade!</li>
-      </ul>
+      <div class="info-list">
+        <p>Pesquise filmes por título ou gênero.</p>
+        <p>Adicione filmes aos seus favoritos para acessar rapidamente depois.</p>
+        <p>Veja detalhes, avaliações e escreva suas próprias reviews.</p>
+        <p v-if="isAdmin">Crie novos filmes para compartilhar com a comunidade!</p>
+      </div>
       <router-link v-if="isAdmin" to="/criar-filme" class="create-movie-link">+ Criar novo filme</router-link>
     </section>
     <div class="top-bar">
@@ -355,6 +355,18 @@ watch(search, () => {
   margin-bottom: 1.5rem;
   text-align: center;
   border: 1.5px solid var(--color-border);
+}
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+.info-list p {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+  line-height: 1.4;
 }
 @media (max-width: 700px) {
   .about-section {
